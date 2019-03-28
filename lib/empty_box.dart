@@ -1,46 +1,44 @@
 import 'package:flutter/material.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
-import './times.dart' show times;
+import './course_util.dart' show getTotalCount;
 
 class EmptyBox extends StatefulWidget {
+  /// is located at column [weekday] and row [start],
+  /// span [count] rows which height is [minHeight]
   EmptyBox({
     Key key,
     @required this.weekday,
     @required this.start,
     @required this.count,
-    @required this.boxHeight,
+    @required this.minHeight,
   }) : super(key: key);
 
-  final weekday;
-  final start;
-  final count;
-  final boxHeight;
+  final int weekday;
+  final int start;
+  final int count;
+  final double minHeight;
 
   @override
   _EmptyBoxState createState() => _EmptyBoxState();
 }
 
 class _EmptyBoxState extends State<EmptyBox> {
-  var _singleHeight;
-
   @override
   Widget build(BuildContext context) {
-    _singleHeight = widget.boxHeight / times.length;
     var step = widget.count;
 
-    /// build `count` EmptyBox to fill the one column from `start` in order
-    var _ = List.generate(widget.count, (idx) => widget.start + (step++));
+    /// build EmptyBox to fill the one column from `start` in order
+    var _ = List.generate(step, (idx) => idx + 1);
 
     return SizedBox(
-      height: widget.boxHeight,
+      height: widget.minHeight * widget.count,
       child: Column(
         children: _.map((start) {
           return SingleItem(
             weekday: widget.weekday,
             start: start,
-            height: _singleHeight,
+            height: widget.minHeight,
           );
         }).toList(),
       ),
@@ -49,9 +47,8 @@ class _EmptyBoxState extends State<EmptyBox> {
 }
 
 class SingleItem extends StatefulWidget {
-  /// `weekday` [String] located weekday
-  /// `start`   [String] located col position
-  /// `height`  [String] minimum box height
+  /// located at column [weekday] where row
+  /// is [start] with minimum [height]
   SingleItem({
     Key key,
     @required this.weekday,
@@ -59,9 +56,9 @@ class SingleItem extends StatefulWidget {
     @required this.height,
   }) : super(key: key);
 
-  final weekday;
-  final start;
-  final height;
+  final int weekday;
+  final int start;
+  final double height;
 
   @override
   State<StatefulWidget> createState() => _SingleItemState();
@@ -74,7 +71,7 @@ class _SingleItemState extends State<SingleItem> {
       height: widget.height,
       child: Center(
         child: Text(
-          'times.indexOf(time) + 1',
+          'TODO',
         ),
       ),
     );

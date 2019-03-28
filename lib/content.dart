@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
 import './times.dart';
-import './classes.dart';
+import './courses.dart';
 import './weeks.dart' show weeks;
 
 class Content extends StatefulWidget {
@@ -13,11 +13,13 @@ class Content extends StatefulWidget {
 }
 
 class _ContentState extends State<Content> {
-  var _contentHeight;
+  /// max height of [Content]
+  double _contentHeight;
 
   @override
   Widget build(BuildContext context) {
-    _contentHeight = MediaQuery.of(context).size.height * 1.2;
+    _contentHeight =
+        MediaQuery.of(context).size.height * 1.2; // scale 1.2 is free to change
 
     return SingleChildScrollView(
       child: Row(
@@ -27,7 +29,10 @@ class _ContentState extends State<Content> {
           ),
         ]..addAll(weeks.map((weekday) {
             return Expanded(
-              child: Classes(classesHeight: _contentHeight),
+              child: Courses(
+                coursesHeight: _contentHeight,
+                weekday: weeks.indexOf(weekday) + 1,
+              ),
             );
           })),
       ),

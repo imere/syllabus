@@ -20,9 +20,9 @@ class Weeks extends StatefulWidget {
 }
 
 class _WeeksState extends State<Weeks> {
-  var _totalWidth;
-  var _totalHeight;
-  var _itemWidth;
+  double _totalWidth;
+  double _totalHeight;
+  double _itemWidth;
 
   @override
   Widget build(BuildContext context) {

@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import './weeks.dart';
 import './content.dart';
-
-import 'package:shared_preferences/shared_preferences.dart';
 
 class Schedule extends StatefulWidget {
   Schedule({Key key}) : super(key: key);
