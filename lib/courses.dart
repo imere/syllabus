@@ -6,12 +6,10 @@ import './empty_box.dart';
 
 import './empty.model.dart';
 import './courses.model.dart';
-import './course_util.dart'
-    show
-        getTotalCount,
-        generateCourses,
-        getSortedVaildCourses,
-        getFilledCourses;
+
+import './utils/util.dart' show getTotalCount;
+import './utils/course_util.dart'
+    show generateCourses, getSortedVaildCourses, getFilledCourses;
 
 class Courses extends StatefulWidget {
   Courses({Key key, this.coursesHeight, this.weekday})

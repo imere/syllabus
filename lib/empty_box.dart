@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
-import './course_util.dart' show getTotalCount;
+import 'package:toast/toast.dart';
 
 class EmptyBox extends StatefulWidget {
   /// is located at column [weekday] and row [start],
@@ -65,13 +64,30 @@ class SingleItem extends StatefulWidget {
 }
 
 class _SingleItemState extends State<SingleItem> {
+  bool _tapped = false;
+
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      height: widget.height,
-      child: Center(
-        child: Text(
-          'TODO',
+    return GestureDetector(
+      onTap: () {
+        setState(() {
+          _tapped = true;
+        });
+      },
+      child: SizedBox(
+        height: widget.height,
+        child: Center(
+          child: _tapped
+              ? GestureDetector(
+                  onTap: () {
+                    setState(() {
+                      _tapped = false;
+                      Toast.show('${widget.weekday} ${widget.start}', context);
+                    });
+                  },
+                  child: Icon(Icons.add),
+                )
+              : Icon(Icons.touch_app),
         ),
       ),
     );

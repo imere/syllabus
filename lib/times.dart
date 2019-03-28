@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-import './course_util.dart' show getTotalCount;
+import './utils/util.dart' show getTotalCount;
 
 class Times extends StatefulWidget {
   Times({Key key, this.timesHeight}) : super(key: key);
