@@ -25,13 +25,14 @@ class EmptyBox extends StatefulWidget {
 class _EmptyBoxState extends State<EmptyBox> {
   @override
   Widget build(BuildContext context) {
+    var start = widget.start;
     var step = widget.count;
 
     /// build EmptyBox to fill the one column from `start` in order
-    var _ = List.generate(step, (idx) => idx + 1);
+    var _ = List.generate(step, (idx) => start++);
 
     return SizedBox(
-      height: widget.minHeight * widget.count,
+      height: widget.minHeight * step,
       child: Column(
         children: _.map((start) {
           return SingleItem(

@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-
 import 'package:shared_preferences/shared_preferences.dart';
 
 final weeks = const [
@@ -54,7 +53,7 @@ Column _buildMonthColumn({double width}) {
   );
 }
 
-Column _buildWeekColumn({@required String week, double width}) {
+Column _buildWeekColumn({String week, double width}) {
   return Column(
     children: <Widget>[
       SizedBox(

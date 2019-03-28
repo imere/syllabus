@@ -1,7 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:toast/toast.dart';
 
+import './courses_item.dart';
 import './empty_box.dart';
 
 import './empty.model.dart';
@@ -12,8 +14,11 @@ import './utils/course_util.dart'
     show generateCourses, getSortedVaildCourses, getFilledCourses;
 
 class Courses extends StatefulWidget {
-  Courses({Key key, this.coursesHeight, this.weekday})
-      : assert(weekday != null),
+  Courses({
+    Key key,
+    this.coursesHeight,
+    this.weekday,
+  })  : assert(weekday != null),
         assert(coursesHeight != null),
         super(key: key);
 
@@ -63,7 +68,7 @@ Column _buildCourseColumn({
   return Column(
     children: c.map((item) {
       if (item is CourseModel) {
-        return _buildCourseItem(classInfo: item, minHeight: minItemHeight);
+        return CourseItem(classInfo: item, minHeight: minItemHeight);
       } else if (item is EmptyModel) {
         return EmptyBox(
           key: Key('${c.indexOf(item) + 1}'),
@@ -74,25 +79,5 @@ Column _buildCourseColumn({
         );
       }
     }).toList(),
-  );
-}
-
-SizedBox _buildCourseItem({
-  @required CourseModel classInfo,
-  @required double minHeight,
-}) {
-  return SizedBox(
-    height: minHeight * classInfo.step,
-    child: Stack(
-      alignment: AlignmentDirectional.topStart,
-      children: <Widget>[
-        AutoSizeText(
-          '${classInfo.name}@${classInfo.room} ${classInfo.teacher}',
-          minFontSize: 12,
-          maxLines: 6,
-          overflow: TextOverflow.ellipsis,
-        ),
-      ],
-    ),
   );
 }
