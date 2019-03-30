@@ -1,27 +1,20 @@
 import 'package:flutter/material.dart';
-import 'package:auto_size_text/auto_size_text.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'package:toast/toast.dart';
 
-import './empty_box.dart';
-
-import './empty.model.dart';
-import './courses.model.dart';
-
-import './utils/util.dart' show getTotalCount;
-import './utils/course_util.dart'
-    show generateCourses, getSortedVaildCourses, getFilledCourses;
+import './course.model.dart';
+import './courses_item_child.dart';
 
 class CourseItem extends StatefulWidget {
   CourseItem({
     Key key,
-    this.classInfo,
-    this.minHeight,
-  })  : assert(classInfo != null),
+    @required this.courseInfoList,
+    @required this.minHeight,
+  })
+      : assert(courseInfoList != null),
         assert(minHeight != null),
         super(key: key);
 
-  final CourseModel classInfo;
+  final List<CourseModel> courseInfoList;
   final double minHeight;
 
   @override
@@ -31,23 +24,40 @@ class CourseItem extends StatefulWidget {
 class _CourseItemState extends State<CourseItem> {
   @override
   Widget build(BuildContext context) {
+    int maxStart = 0;
+    int maxStep = 0;
+    widget.courseInfoList.forEach((info) {
+      if (info.start > maxStart) maxStart = info.start;
+      if (info.step > maxStep) maxStep = info.step;
+    });
+
     return SizedBox(
-      height: widget.minHeight * widget.classInfo.step,
+      height: widget.minHeight * maxStep,
       child: GestureDetector(
         child: Stack(
-          alignment: AlignmentDirectional.topStart,
-          children: <Widget>[
-            AutoSizeText(
-              '${widget.classInfo.name}@${widget.classInfo.room} ${widget.classInfo.teacher}',
-              minFontSize: 12,
-              maxLines: 6,
-              overflow: TextOverflow.ellipsis,
-            ),
-          ],
+          alignment: AlignmentDirectional.bottomEnd,
+          children: <Widget>[]..addAll(
+            // reverse to make the first at top
+            widget.courseInfoList.reversed.map((courseInfo) {
+              return CourseItemChild(
+                courseInfo: courseInfo,
+              );
+            }),
+          )..addAll(widget.courseInfoList.length > 1
+              ? [
+            CircleAvatar(
+              maxRadius: 8.0,
+              child: Text(
+                '${widget.courseInfoList.length}',
+                style: TextStyle(fontSize: 12.0),
+              ),
+            )
+          ]
+              : []),
         ),
         onTap: () {
           Toast.show(
-            '${widget.classInfo.weekday} ${widget.classInfo.start}',
+            '${widget.courseInfoList.first.weekday} $maxStart,$maxStep',
             context,
           );
         },

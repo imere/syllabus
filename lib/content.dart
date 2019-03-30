@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-import './times.dart';
 import './courses.dart';
+import './times.dart';
 import './weeks.dart' show weeks;
 
 class Content extends StatefulWidget {

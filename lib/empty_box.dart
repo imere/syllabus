@@ -1,21 +1,19 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
-import 'package:toast/toast.dart';
 
 class EmptyBox extends StatefulWidget {
-  /// is located at column [weekday] and row [start],
-  /// span [count] rows which height is [minHeight]
+  /// Is located at column [weekday] and row [start],
+  /// span [step] rows which height is [minHeight]
   EmptyBox({
     Key key,
     @required this.weekday,
     @required this.start,
-    @required this.count,
+    @required this.step,
     @required this.minHeight,
   }) : super(key: key);
 
   final int weekday;
   final int start;
-  final int count;
+  final int step;
   final double minHeight;
 
   @override
@@ -26,9 +24,9 @@ class _EmptyBoxState extends State<EmptyBox> {
   @override
   Widget build(BuildContext context) {
     var start = widget.start;
-    var step = widget.count;
+    var step = widget.step;
 
-    /// build EmptyBox to fill the one column from `start` in order
+    /// Build [EmptyBox] to fill the one column from `start` semantically in order
     var _ = List.generate(step, (idx) => start++);
 
     return SizedBox(
@@ -36,6 +34,7 @@ class _EmptyBoxState extends State<EmptyBox> {
       child: Column(
         children: _.map((start) {
           return SingleItem(
+            key: Key('$start'),
             weekday: widget.weekday,
             start: start,
             height: widget.minHeight,
@@ -47,7 +46,7 @@ class _EmptyBoxState extends State<EmptyBox> {
 }
 
 class SingleItem extends StatefulWidget {
-  /// located at column [weekday] where row
+  /// Located at column [weekday] where row
   /// is [start] with minimum [height]
   SingleItem({
     Key key,
@@ -65,32 +64,11 @@ class SingleItem extends StatefulWidget {
 }
 
 class _SingleItemState extends State<SingleItem> {
-  bool _tapped = false;
-
   @override
   Widget build(BuildContext context) {
-    return GestureDetector(
-      onTap: () {
-        setState(() {
-          _tapped = true;
-        });
-      },
-      child: SizedBox(
-        height: widget.height,
-        child: Center(
-          child: _tapped
-              ? GestureDetector(
-                  onTap: () {
-                    setState(() {
-                      _tapped = false;
-                      Toast.show('${widget.weekday} ${widget.start}', context);
-                    });
-                  },
-                  child: Icon(Icons.add),
-                )
-              : Icon(Icons.touch_app),
-        ),
-      ),
+    return Container(
+      width: double.infinity,
+      height: widget.height,
     );
   }
 }

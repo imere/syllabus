@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
+
 import './schedule.dart';
 
-void main() => runApp(App());
+Future<void> main() async {
+  runApp(App());
+}
 
 class App extends StatelessWidget {
   @override

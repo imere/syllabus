@@ -5,14 +5,14 @@ class EmptyModel {
     @required this.minHeight,
     @required this.weekday,
     @required this.start,
-    @required this.count,
+    @required this.step,
   })  : assert(null != minHeight),
         assert(null != weekday),
         assert(null != start),
-        assert(null != count);
+        assert(null != step);
 
   final double minHeight;
   final int weekday;
   final int start;
-  final int count;
+  final int step;
 }

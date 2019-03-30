@@ -15,6 +15,8 @@ class CourseModel {
         assert(null != weekday),
         assert(null != weeks);
 
+  factory CourseModel.fromJson() {}
+
   String name;
   String room;
   String teacher;

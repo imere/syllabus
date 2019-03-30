@@ -1,104 +1,21 @@
 import 'package:flutter/material.dart';
 
-import '../empty.model.dart';
-import '../courses.model.dart';
-
 import './util.dart' show getTotalCount;
+import '../course.model.dart';
+import '../empty.model.dart';
 
-List<CourseModel> generateCourses() {
-  List<CourseModel> list = [];
-  list.addAll([
-    // CourseModel(
-    //   name: '阿斯利康大家爱丽丝看人家',
-    //   room: '7-121',
-    //   start: 1,
-    //   step: 2,
-    //   weekday: 1,
-    //   weeks: [1, 2, 3],
-    // ),
-    CourseModel(
-      name: '阿斯利康大家爱丽丝看人',
-      room: '8-121',
-      start: 3,
-      step: 2,
-      weekday: 1,
-      weeks: [1, 2, 3],
-    ),
-    // CourseModel(
-    //   name: '阿斯利康大家爱丽丝家',
-    //   room: '9-121',
-    //   start: 5,
-    //   step: 2,
-    //   weekday: 1,
-    //   weeks: [1, 2, 3],
-    // ),
-    // CourseModel(
-    //   name: '阿斯利康大家爱丽家',
-    //   room: '10-121',
-    //   start: 7,
-    //   step: 2,
-    //   weekday: 1,
-    //   weeks: [1, 2, 3],
-    // ),
-    // CourseModel(
-    //   name: '阿斯利康大家爱家',
-    //   room: '11-121',
-    //   start: 9,
-    //   step: 2,
-    //   weekday: 1,
-    //   weeks: [1, 2, 3],
-    // ),
-    CourseModel(
-      name: '阿斯利康大家家',
-      room: '12-121',
-      start: 11,
-      step: 2,
-      weekday: 1,
-      weeks: [1, 2, 3],
-    ),
-    // CourseModel(
-    //   name: '阿斯利康大家',
-    //   room: '12-110',
-    //   start: 13,
-    //   step: 2,
-    //   weekday: 1,
-    //   weeks: [1, 2, 3],
-    // ),
-    // CourseModel(
-    //   name: '阿斯利康家',
-    //   room: '12-111',
-    //   start: 15,
-    //   step: 2,
-    //   weekday: 1,
-    //   weeks: [1, 2, 3],
-    // ),
-    // CourseModel(
-    //   name: '阿斯利家',
-    //   start: 17,
-    //   step: 2,
-    //   weekday: 1,
-    //   room: '12-112',
-    //   weeks: [1, 2, 3],
-    // ),
-    // CourseModel(
-    //   name: '阿斯家',
-    //   start: 19,
-    //   step: 2,
-    //   weekday: 1,
-    //   room: '12-113',
-    //   weeks: [1, 2, 3],
-    // ),
-  ]);
-  return list;
-}
+List<CourseModel> _getSortedValidCourses(List<CourseModel> courses, {
+  List weekdays = const [1, 2, 3, 4, 5, 6, 7],
+}) {
+  if (courses.length == 0) return [];
 
-List<CourseModel> getSortedVaildCourses(List<CourseModel> courses) {
-  var list = courses;
+  var list = List.of(courses);
 
-  /// `start` should not be -1
+  /// `start` should not <1
   list.removeWhere((course) {
     return (course.start < 1) ||
-        (course.start + course.step - 1 > getTotalCount());
+        (course.start + course.step - 1 > getTotalCount()) ||
+        !weekdays.contains(course.weekday);
   });
 
   list.sort((a, b) => a.start - b.start);
@@ -107,28 +24,32 @@ List<CourseModel> getSortedVaildCourses(List<CourseModel> courses) {
 }
 
 /// Fill [courses] with [EmptyModel] if needed,
-/// then return a new list.
+/// then return a new list of type [List<CourseModel|EmptyModel>].
 /// [EmptyModel] is used to construct [EmptyBox]
-List getFilledCourses({
+List _getFilledCourses({
   @required List<CourseModel> courses,
   @required double minHeight,
   @required int weekday,
 }) {
+  if (courses.length == 0) return [];
+
   List list = [];
+
   int prevStart = 0;
   int prevStep = 1;
+
   courses.sort((a, b) => a.start - b.start);
 
   courses.forEach((course) {
     if (course.start > (prevStart + prevStep)) {
-      // fill with empty block if there is space between two courses
+      // Fill with empty block if there is space between two courses
       list.add(EmptyModel(
         minHeight: minHeight,
         weekday: weekday,
         start: prevStart + prevStep,
-        count: course.start - (prevStart + prevStep),
+        step: course.start - (prevStart + prevStep),
       ));
-      prevStart = prevStart + prevStep - prevStart - prevStep;
+      prevStart = prevStart + prevStep - (prevStart + prevStep);
       prevStep = course.start + course.step;
     } else {
       prevStart = course.start;
@@ -138,15 +59,95 @@ List getFilledCourses({
     list.add(course);
   });
 
-  // fill with empty block if there is space at the end
+  // Fill with empty block if there is space at the end
   if (prevStart + prevStep - 1 < getTotalCount()) {
     list.add(EmptyModel(
       minHeight: minHeight,
       weekday: weekday,
       start: prevStart + prevStep,
-      count: getTotalCount() - (prevStart + prevStep) + 1,
+      step: getTotalCount() - (prevStart + prevStep) + 1,
     ));
   }
 
   return list;
+}
+
+/// Process `courses: List<CourseModel|EmptyModel>`,
+/// then return a new list of type `List<CourseModel|EmptyModel|List<CourseModel>>`.
+List _handleValidOverlayCourses(List courses) {
+  // TODO(improve algorithm)
+  if (courses.length == 0) return [];
+
+  courses.sort((a, b) => a.start - b.start);
+
+  List ret = [];
+
+  /// Here values are [List], because [EmptyModel]
+  /// may also be stored, but they will be processed later
+  Map<String, List> map = Map();
+
+  String prevKey = '${courses.first.start}-${courses.first.step}';
+
+  courses.forEach((course) {
+    String key = '${course.start}-${course.step}';
+
+    /// We use [Map], so it's safe to only check keys
+    if (key == prevKey) {
+      if (map[key] == null) map[key] = [];
+      map[key].add(course);
+    } else {
+      if (map[key] == null) {
+        map[key] = [];
+        map[key].add(course);
+        return;
+      }
+      ret.add(map[key]);
+    }
+  });
+
+  final blocks = List.generate(getTotalCount(), (idx) => idx + 1);
+  // Traverse all rows
+  blocks.forEach((start) {
+    // Traverse all steps
+    blocks.forEach((step) {
+      if (map['$start-$step'] == null) return;
+
+      /// The [List] of [EmptyModel] is then flattened
+      if (map['$start-$step'].first is EmptyModel) {
+        map['$start-$step'].forEach((em) {
+          ret.add(em);
+        });
+        return;
+      }
+
+      ret.add(map['$start-$step']);
+    });
+  });
+
+  {
+    // Debug
+    for (var item in ret) {
+      if (item is CourseModel) {
+        /// In fact this is not reachable, because [CourseModel] are
+        /// all in the [List]
+        print('C : ${item.start} ${item.step}');
+      } else if (item is EmptyModel) {
+        print('E : ${item.start} ${item.step}');
+      } else {
+        print('L: $item');
+      }
+    }
+    print(ret.length);
+  }
+
+  return ret;
+}
+
+List processCourses(
+    {List<CourseModel> courses, int weekday, double minHeight}) {
+  return _handleValidOverlayCourses(_getFilledCourses(
+    courses: _getSortedValidCourses(courses, weekdays: [weekday]),
+    weekday: weekday,
+    minHeight: minHeight,
+  ));
 }

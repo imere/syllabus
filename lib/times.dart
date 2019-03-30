@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
 import './utils/util.dart' show getTotalCount;
 
@@ -17,9 +16,9 @@ class _TimesState extends State<Times> {
 
   @override
   Widget build(BuildContext context) {
-    _itemHeight = widget.timesHeight / (getTotalCount() ~/ 2);
+    _itemHeight = widget.timesHeight / getTotalCount();
 
-    final times = List.generate(getTotalCount() ~/ 2, (idx) => idx + 1);
+    final times = List.generate(getTotalCount(), (idx) => idx + 1);
 
     return SizedBox(
       height: widget.timesHeight,
