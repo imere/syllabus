@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-
-import './course.model.dart';
-import './courses_item.dart';
-import './empty.model.dart';
-import './empty_box.dart';
-import './utils/course_util.dart' show processCourses;
-import './utils/util.dart' show getTotalCount, generateCourses;
+import 'package:schedule/course.model.dart';
+import 'package:schedule/courses_item.dart';
+import 'package:schedule/empty.model.dart';
+import 'package:schedule/empty_box.dart';
+import 'package:schedule/utils/course_util.dart' show getProcessedCourses;
+import 'package:schedule/utils/util.dart' show getTotalCount, generateCourses;
 
 class Courses extends StatefulWidget {
   Courses({
@@ -33,7 +32,7 @@ class _CoursesState extends State<Courses> {
 
     return SizedBox(
       height: widget.coursesHeight,
-      child: _buildCourseColumn(
+      child: CourseColumn(
         weekday: widget.weekday,
         minItemHeight: _minHeight,
       ),
@@ -41,38 +40,51 @@ class _CoursesState extends State<Courses> {
   }
 }
 
-Column _buildCourseColumn({
-  @required double minItemHeight,
-  @required int weekday,
-}) {
-  List c = processCourses(
-    courses: generateCourses(),
-    weekday: weekday,
-    minHeight: minItemHeight,
-  );
+class CourseColumn extends StatefulWidget {
+  CourseColumn({
+    @required this.minItemHeight,
+    @required this.weekday,
+  });
 
-  return Column(
-    children: c.map((item) {
-      if (item is CourseModel) {
-        return CourseItem(
-          courseInfoList: [item],
-          minHeight: minItemHeight,
-        );
-      } else if (item is EmptyModel) {
-        return EmptyBox(
-          weekday: item.weekday,
-          start: item.start,
-          step: item.step,
-          minHeight: item.minHeight,
-        );
-      } else if (item.cast<CourseModel>() is List<CourseModel>) {
-        return CourseItem(
-          courseInfoList: item.cast<CourseModel>(),
-          minHeight: minItemHeight,
-        );
-      } else {
-        throw Exception('`item` type not supported ');
-      }
-    }).toList(),
-  );
+  final double minItemHeight;
+  final int weekday;
+
+  @override
+  State<StatefulWidget> createState() => _CourseColumnState();
+}
+
+class _CourseColumnState extends State<CourseColumn> {
+  @override
+  Widget build(BuildContext context) {
+    List c = getProcessedCourses(
+      courses: generateCourses(),
+      weekday: widget.weekday,
+      minHeight: widget.minItemHeight,
+    );
+
+    return Column(
+      children: c.map((item) {
+        if (item is CourseModel) {
+          return CourseItem(
+            courseInfoList: [item],
+            minHeight: widget.minItemHeight,
+          );
+        } else if (item is EmptyModel) {
+          return EmptyBox(
+            weekday: item.weekday,
+            start: item.start,
+            step: item.step,
+            minHeight: item.minHeight,
+          );
+        } else if (item.cast<CourseModel>() is List<CourseModel>) {
+          return CourseItem(
+            courseInfoList: item.cast<CourseModel>(),
+            minHeight: widget.minItemHeight,
+          );
+        } else {
+          throw Exception('`item` type not supported ');
+        }
+      }).toList(),
+    );
+  }
 }

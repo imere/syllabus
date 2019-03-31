@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-
-import './utils/util.dart' show getTotalCount;
+import 'package:schedule/utils/util.dart' show getTotalCount;
 
 class Times extends StatefulWidget {
   Times({Key key, this.timesHeight}) : super(key: key);

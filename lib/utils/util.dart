@@ -1,8 +1,39 @@
-import '../course.model.dart';
+import 'package:schedule/course.model.dart';
 
 int getTotalCount() {
-  // even number
+  // Even number
   return 2 * 7;
+}
+
+List<Map<int, String>> getTimesMap() {
+  return [
+    {1: '8:00'},
+    {2: '9:00'},
+    {3: '10:00'},
+    {4: '11:00'},
+    {5: '14:00'},
+    {6: '15:00'},
+    {7: '16:00'},
+    {8: '17:00'},
+    {9: '20:00'},
+    {10: '21:00'},
+  ];
+}
+
+List<String> getWeekdays() {
+  return [
+    '周一',
+    '周二',
+    '周三',
+    '周四',
+    '周五',
+    '周六',
+    '周日',
+  ];
+}
+
+List<int> getWeeks() {
+  return List.generate(30, (idx) => idx + 1);
 }
 
 List<CourseModel> generateCourses() {

@@ -1,22 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:schedule/course.model.dart';
+import 'package:schedule/empty.model.dart';
+import 'package:schedule/utils/util.dart' show getTotalCount;
 
-import './util.dart' show getTotalCount;
-import '../course.model.dart';
-import '../empty.model.dart';
+List<CourseModel> getValidCourses(List<CourseModel> courses, {
+  List weekdays = const [1, 2, 3, 4, 5, 6, 7],
+}) {
+  if (courses.isEmpty) return [];
 
-List<CourseModel> _getSortedValidCourses(List<CourseModel> courses, {
+  List<CourseModel> ret = List.of(courses);
+
+  ret.removeWhere((course) {
+    return (course.start < 1) ||
+        (course.step < 1) ||
+        (course.start + course.step - 1 > getTotalCount()) ||
+        !weekdays.contains(course.weekday);
+  });
+
+  return ret;
+}
+
+List<CourseModel> getSortedValidCourses(List<CourseModel> courses, {
   List weekdays = const [1, 2, 3, 4, 5, 6, 7],
 }) {
   if (courses.length == 0) return [];
 
-  var list = List.of(courses);
-
-  /// `start` should not <1
-  list.removeWhere((course) {
-    return (course.start < 1) ||
-        (course.start + course.step - 1 > getTotalCount()) ||
-        !weekdays.contains(course.weekday);
-  });
+  List list = getValidCourses(courses, weekdays: weekdays);
 
   list.sort((a, b) => a.start - b.start);
 
@@ -26,14 +35,14 @@ List<CourseModel> _getSortedValidCourses(List<CourseModel> courses, {
 /// Fill [courses] with [EmptyModel] if needed,
 /// then return a new list of type [List<CourseModel|EmptyModel>].
 /// [EmptyModel] is used to construct [EmptyBox]
-List _getFilledCourses({
+List getFilledCourses({
   @required List<CourseModel> courses,
   @required double minHeight,
   @required int weekday,
 }) {
   if (courses.length == 0) return [];
 
-  List list = [];
+  List ret = [];
 
   int prevStart = 0;
   int prevStep = 1;
@@ -43,7 +52,7 @@ List _getFilledCourses({
   courses.forEach((course) {
     if (course.start > (prevStart + prevStep)) {
       // Fill with empty block if there is space between two courses
-      list.add(EmptyModel(
+      ret.add(EmptyModel(
         minHeight: minHeight,
         weekday: weekday,
         start: prevStart + prevStep,
@@ -56,12 +65,12 @@ List _getFilledCourses({
       prevStep = course.step;
     }
 
-    list.add(course);
+    ret.add(course);
   });
 
   // Fill with empty block if there is space at the end
   if (prevStart + prevStep - 1 < getTotalCount()) {
-    list.add(EmptyModel(
+    ret.add(EmptyModel(
       minHeight: minHeight,
       weekday: weekday,
       start: prevStart + prevStep,
@@ -69,7 +78,7 @@ List _getFilledCourses({
     ));
   }
 
-  return list;
+  return ret;
 }
 
 /// Process `courses: List<CourseModel|EmptyModel>`,
@@ -124,29 +133,32 @@ List _handleValidOverlayCourses(List courses) {
     });
   });
 
-  {
-    // Debug
-    for (var item in ret) {
-      if (item is CourseModel) {
-        /// In fact this is not reachable, because [CourseModel] are
-        /// all in the [List]
-        print('C : ${item.start} ${item.step}');
-      } else if (item is EmptyModel) {
-        print('E : ${item.start} ${item.step}');
-      } else {
-        print('L: $item');
-      }
-    }
-    print(ret.length);
-  }
+//  {
+//    // Debug
+//    for (var item in ret) {
+//      if (item is CourseModel) {
+//        /// In fact this is not reachable, because [CourseModel] are
+//        /// all in the [List]
+//        print('C : ${item.start} ${item.step}');
+//      } else if (item is EmptyModel) {
+//        print('E : ${item.start} ${item.step}');
+//      } else {
+//        print('L: $item');
+//      }
+//    }
+//    print(ret.length);
+//  }
 
   return ret;
 }
 
-List processCourses(
-    {List<CourseModel> courses, int weekday, double minHeight}) {
-  return _handleValidOverlayCourses(_getFilledCourses(
-    courses: _getSortedValidCourses(courses, weekdays: [weekday]),
+List getProcessedCourses({
+  List<CourseModel> courses = const [],
+  int weekday,
+  double minHeight,
+}) {
+  return _handleValidOverlayCourses(getFilledCourses(
+    courses: getSortedValidCourses(courses, weekdays: [weekday]),
     weekday: weekday,
     minHeight: minHeight,
   ));

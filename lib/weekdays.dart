@@ -1,14 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:schedule/utils/util.dart' show getWeekdays;
 
-final weeks = const [
-  '周一',
-  '周二',
-  '周三',
-  '周四',
-  '周五',
-  '周六',
-  '周日',
-];
+var weekdays = getWeekdays();
 
 class Weeks extends StatefulWidget {
   Weeks({Key key}) : super(key: key);
@@ -26,12 +19,13 @@ class _WeeksState extends State<Weeks> {
   Widget build(BuildContext context) {
     _totalWidth = MediaQuery.of(context).size.width;
     _totalHeight = MediaQuery.of(context).size.height;
-    _itemWidth = _totalWidth / (weeks.length + 1);
+    _itemWidth = _totalWidth / (weekdays.length + 1);
 
     return Row(
       children: <Widget>[
         _buildMonthColumn(width: _itemWidth),
-      ]..addAll(weeks.map((week) {
+      ]
+        ..addAll(weekdays.map((week) {
           return _buildWeekColumn(week: week, width: _itemWidth);
         })),
     );

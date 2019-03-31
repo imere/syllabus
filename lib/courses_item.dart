@@ -1,8 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:schedule/course.model.dart';
+import 'package:schedule/courses_item_child.dart';
 import 'package:toast/toast.dart';
-
-import './course.model.dart';
-import './courses_item_child.dart';
 
 class CourseItem extends StatefulWidget {
   CourseItem({
@@ -45,13 +44,20 @@ class _CourseItemState extends State<CourseItem> {
             }),
           )..addAll(widget.courseInfoList.length > 1
               ? [
-            CircleAvatar(
-              maxRadius: 8.0,
-              child: Text(
-                '${widget.courseInfoList.length}',
-                style: TextStyle(fontSize: 12.0),
+            DecoratedBox(
+              decoration: BoxDecoration(color: Colors.green),
+              child: Container(
+                width: double.infinity,
+                child: Text(
+                  '${widget.courseInfoList.length}',
+                  textAlign: TextAlign.center,
+                  style: TextStyle(
+                    fontSize: 15.0,
+                    color: Colors.white,
+                  ),
+                ),
               ),
-            )
+            ),
           ]
               : []),
         ),
