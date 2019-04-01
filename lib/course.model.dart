@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:json_annotation/json_annotation.dart';
 import 'package:schedule/utils/course_util.dart' show getValidCourses;
-import 'package:schedule/utils/util.dart' show generateCourses;
 
 @JsonSerializable(nullable: true)
 class CourseModel {
@@ -20,6 +19,9 @@ class CourseModel {
         assert(null != weeks);
 
   factory CourseModel.fromMap(Map<String, dynamic> json) {
+    List<int> weeksTmp = [];
+    (json['weeks'] as List).forEach((v) => weeksTmp.add(v));
+
     return CourseModel(
       name: json['name'] as String,
       room: json['room'] as String,
@@ -27,17 +29,30 @@ class CourseModel {
       start: json['start'] as int,
       step: json['step'] as int,
       weekday: json['weekday'] as int,
-      weeks: json['weeks'] as List,
+      weeks: weeksTmp,
     );
   }
 
+  @JsonKey(name: 'name')
   String name;
+
+  @JsonKey(name: 'room')
   String room;
+
+  @JsonKey(name: 'teacher')
   String teacher;
+
+  @JsonKey(name: 'weekday')
   int weekday;
+
+  @JsonKey(name: 'start')
   int start;
+
+  @JsonKey(name: 'step')
   int step;
-  List weeks;
+
+  @JsonKey(name: 'weeks')
+  List<int> weeks;
 
   Map<String, dynamic> toMap() =>
       <String, dynamic>{
@@ -50,13 +65,36 @@ class CourseModel {
         'weeks': this.weeks,
       };
 
+  @override
+  bool operator ==(Object other) =>
+      other is CourseModel &&
+          this.name == other.name &&
+          this.room == other.room &&
+          this.teacher == other.teacher &&
+          this.start == other.start &&
+          this.step == other.step &&
+          this.weekday == other.weekday &&
+          this.weeks.length == other.weeks.length &&
+          this.weeks.every((week) => other.weeks.contains(week));
+
+  @override
+  get hashCode =>
+      name.hashCode * 31 ^
+      room.hashCode * 31 ^
+      teacher.hashCode * 31 ^
+      start.hashCode * 31 ^
+      step.hashCode * 31 ^
+      weekday.hashCode * 31 ^
+      weeks.hashCode;
+
   bool invalidOverlaps({
+    @required List<CourseModel> inCourses,
     @required int weekday,
     @required int start,
     @required int step,
   }) {
     List<CourseModel> list = getValidCourses(
-      generateCourses(),
+      inCourses,
       weekdays: [weekday],
     );
 

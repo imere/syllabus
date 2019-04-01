@@ -1,11 +1,33 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:schedule/course.model.dart';
 import 'package:schedule/course_settings/course_settings.dart';
 import 'package:schedule/schedule.dart';
-import 'package:schedule/services/service.dart' show curWeek;
+import 'package:schedule/services/service.dart' show updateState$, curWeekFs;
+import 'package:schedule/services/service.dart' show coursesFs;
+import 'package:schedule/utils/constants.dart'
+    show THEME_PRIMARY_SWATCH, MAIN_APPBAR_BG;
+import 'package:schedule/utils/constants.dart'
+    show PREFS_CURRENT_WEEK, PREFS_ALL_COURSES;
+import 'package:schedule/utils/util.dart' show getWeeks;
 import 'package:shared_preferences/shared_preferences.dart';
 
+Future<void> loadCurWeek() async {
+  final pref = await SharedPreferences.getInstance();
+  curWeekFs = pref.getInt(PREFS_CURRENT_WEEK) ?? 1;
+}
+
+Future<void> loadCourses() async {
+  final pref = await SharedPreferences.getInstance();
+  List tmpList = json.decode(pref.getString(PREFS_ALL_COURSES) ?? '[]');
+  tmpList.forEach((map) => coursesFs.add(CourseModel.fromMap(map)));
+}
+
 Future<void> main() async {
+  await loadCurWeek();
+  await loadCourses();
   runApp(App());
 }
 
@@ -15,7 +37,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: '课程表',
       theme: ThemeData(
-        primarySwatch: Colors.blue,
+        primarySwatch: THEME_PRIMARY_SWATCH,
       ),
       home: HomePage(title: '课程表'),
     );
@@ -32,7 +54,14 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  int _week = 1;
+  void _setCurWeek(int week) {
+    curWeekFs = week;
+    setState(() {
+      SharedPreferences.getInstance().then((p) {
+        p.setInt(PREFS_CURRENT_WEEK, week);
+      });
+    });
+  }
 
   void _changeWeek() {
     showModalBottomSheet(
@@ -44,16 +73,12 @@ class _HomePageState extends State<HomePage> {
                 itemExtent: 40,
                 looping: true,
                 onSelectedItemChanged: (idx) {
-                  setState(() {
-                    this._week = idx + 1;
-                    curWeek = this._week;
-                    _setCurWeek(curWeek);
-                  });
+                  _setCurWeek(idx + 1);
                 },
-                children: List.generate(30, (idx) => idx + 1)
-                    .map((v) =>
+                children: getWeeks()
+                    .map((week) =>
                     Text(
-                      '$v',
+                      '$week',
                       style: TextStyle(fontSize: 30),
                     ))
                     .toList(),
@@ -61,39 +86,28 @@ class _HomePageState extends State<HomePage> {
         });
   }
 
-  void _setCurWeek(int week) {
-    SharedPreferences.getInstance().then((p) {
-      p.setInt('curWeek', week);
-    });
-  }
-
-  void loadCurWeek() {
-    SharedPreferences.getInstance().then((p) {
-      setState(() {
-        _week = p.getInt('curWeek') ?? 1;
-        curWeek = _week;
-      });
-    });
+  @override
+  void initState() {
+    /// Get update signal from others
+    updateState$.listen((_) => setState(() {}));
+    super.initState();
   }
 
   @override
   Widget build(BuildContext context) {
-    loadCurWeek();
-
     return Scaffold(
       appBar: AppBar(
         title: GestureDetector(
           child: Row(
             children: <Widget>[
-              Text('第$_week周'),
+              Text('第$curWeekFs周'),
               Icon(Icons.arrow_drop_down),
             ],
           ),
           onTap: _changeWeek,
         ),
         centerTitle: true,
-        backgroundColor: Color.fromARGB(
-            255, num.parse('0x8B'), num.parse('0x81'), num.parse('0xC3')),
+        backgroundColor: MAIN_APPBAR_BG,
         brightness: Brightness.dark,
         actions: <Widget>[
           IconButton(
@@ -108,7 +122,7 @@ class _HomePageState extends State<HomePage> {
                 },
               );
             },
-          )
+          ),
         ],
       ),
       body: Schedule(),

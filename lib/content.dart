@@ -20,7 +20,7 @@ class _ContentState extends State<Content> {
         MediaQuery
             .of(context)
             .size
-            .height * 1.8; // scale is free to change
+            .height * 1.5; // scale is free to change
 
     return SingleChildScrollView(
       child: Row(

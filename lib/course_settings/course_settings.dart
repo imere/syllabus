@@ -1,17 +1,25 @@
+import 'dart:convert';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:schedule/course.model.dart' show CourseModel;
+import 'package:schedule/services/service.dart' show coursesFs;
+import 'package:schedule/services/service.dart' show updateState$;
+import 'package:schedule/utils/constants.dart' show PREFS_ALL_COURSES;
+import 'package:schedule/utils/course_util.dart' show getValidCourses;
+import 'package:schedule/utils/util.dart' show getTotalCount, getWeeks;
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipedetector/swipedetector.dart';
 import 'package:toast/toast.dart';
 
-import '../course.model.dart' show CourseModel;
-import '../utils/course_util.dart' show getValidCourses;
-import '../utils/util.dart' show getTotalCount, getWeeks, generateCourses;
-
 class CourseSettings extends StatefulWidget {
-  CourseSettings({Key key, this.title, this.course}) : super(key: key);
+  CourseSettings({Key key, this.title, this.course, this.modifying})
+      : super(key: key);
 
   final String title;
   final CourseModel course;
+
+  final bool modifying;
 
   @override
   State<StatefulWidget> createState() => _CourseSettingsState();
@@ -25,6 +33,8 @@ class _CourseSettingsState extends State<CourseSettings> {
   int step = 1;
   int weekday = 1;
   List<int> weeks = getWeeks();
+
+  int _groupWeekday = 1;
 
   void _onStartBtnPressed() {
     showModalBottomSheet(
@@ -43,9 +53,9 @@ class _CourseSettingsState extends State<CourseSettings> {
               },
               children: List.generate(getTotalCount(), (idx) => idx + 1)
                   .map((val) => Text(
-                        '$val',
-                        style: TextStyle(fontSize: 30),
-                      ))
+                '$val',
+                style: TextStyle(fontSize: 30),
+              ))
                   .toList(),
             ),
           );
@@ -65,33 +75,102 @@ class _CourseSettingsState extends State<CourseSettings> {
                 });
               },
               children: List.generate(
-                      getTotalCount() - this.start + 1, (idx) => idx + 1)
+                  getTotalCount() - this.start + 1, (idx) => idx + 1)
                   .map((val) => Text(
-                        '$val',
-                        style: TextStyle(fontSize: 30),
-                      ))
+                '$val',
+                style: TextStyle(fontSize: 30),
+              ))
                   .toList(),
             ),
           );
         });
   }
 
-  void _onCancelBtnPressed() {
-    Navigator.pop(context);
+  void _removeCurCourse() {
+    final CourseModel course = widget.course;
+    coursesFs.remove(coursesFs.firstWhere((el) {
+      return course.name == el.name &&
+          course.room == el.room &&
+          course.teacher == el.teacher &&
+          course.start == el.start &&
+          course.step == el.step &&
+          course.weekday == el.weekday &&
+          course.weeks.length == el.weeks.length &&
+          course.weeks.every((week) => el.weeks.contains(week));
+    }));
   }
 
-  void _onSaveBtnPressed() {
-    if (getValidCourses(generateCourses(), weekdays: [this.weekday])
-        .any((course) {
+  void _saveCourse(CourseModel course) {
+    setState(() {
+      coursesFs.add(CourseModel(
+        name: this.name,
+        room: this.room,
+        teacher: this.teacher,
+        start: this.start,
+        step: this.step,
+        weekday: this.weekday,
+        weeks: this.weeks,
+      ));
+    });
+  }
+
+  void _modifyCourse(CourseModel course) {
+    setState(() {
+      _removeCurCourse();
+
+      coursesFs.add(CourseModel(
+        name: this.name,
+        room: this.room,
+        teacher: this.teacher,
+        start: this.start,
+        step: this.step,
+        weekday: this.weekday,
+        weeks: this.weeks,
+      ));
+    });
+  }
+
+  bool _checkInvalid() {
+    return getValidCourses(coursesFs, weekdays: [this.weekday]).any((course) {
       return course.invalidOverlaps(
+        inCourses: coursesFs,
         weekday: this.weekday,
         start: this.start,
         step: this.step,
       );
-    })) {
-      return Toast.show('课程时间不允许交叉, 请重新设置', context,
-          duration: Toast.LENGTH_LONG, gravity: Toast.CENTER);
+    });
+  }
+
+  void _changeStorage() {
+    SharedPreferences.getInstance().then((p) {
+      p.setString(PREFS_ALL_COURSES,
+          json.encode(coursesFs.map((v) => v.toMap()).toList()));
+    });
+    updateState$.add(true);
+  }
+
+  void _onCancelBtnPressed() {
+    if (widget.modifying == true) {
+      _removeCurCourse();
     }
+    Navigator.pop(context);
+    _changeStorage();
+  }
+
+  void _onSaveBtnPressed() {
+    if (widget.modifying == true) {
+      _modifyCourse(widget.course);
+      Navigator.pop(context);
+    } else {
+      if (_checkInvalid()) {
+        return Toast.show('课程时间不允许交叉, 请重新设置', context,
+            duration: Toast.LENGTH_SHORT, gravity: Toast.CENTER);
+      } else {
+        _saveCourse(widget.course);
+        Navigator.pop(context);
+      }
+    }
+    _changeStorage();
   }
 
   dynamic _swipeAction(int week) {
@@ -105,7 +184,7 @@ class _CourseSettingsState extends State<CourseSettings> {
     });
   }
 
-  void _setCourseInfo() {
+  void _loadCourseInfo() {
     if (widget.course == null) return;
     setState(() {
       CourseModel course = widget.course;
@@ -114,26 +193,31 @@ class _CourseSettingsState extends State<CourseSettings> {
       this.teacher = course.teacher;
       this.start = course.start;
       this.step = course.step;
-      this.weekday = course.weekday;
       this.weeks = course.weeks;
+      // Important to set radio group value
+      this._groupWeekday = this.weekday = course.weekday;
     });
   }
 
   @override
-  Widget build(BuildContext context) {
-    _setCourseInfo();
+  void initState() {
+    _loadCourseInfo();
+    super.initState();
+  }
 
+  @override
+  Widget build(BuildContext context) {
     /// `skip` + `take` + 1 == 1 to generate from 1
     int skip = -8;
     final take = 8;
-    final count = getWeeks().length ~/ take + 1;
+    final weekCount = getWeeks().length ~/ take + 1;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(widget.title),
       ),
       body: Padding(
-        padding: EdgeInsets.symmetric(horizontal: 5.0, vertical: 5.0),
+        padding: EdgeInsets.all(5.0),
         child: ListView(
           children: <Widget>[
             ExpansionTile(
@@ -146,7 +230,7 @@ class _CourseSettingsState extends State<CourseSettings> {
                   autofocus: true,
                   onChanged: (value) {
                     setState(() {
-                      this.name = value;
+                      this.name = value.trim();
                     });
                   },
                 ),
@@ -162,7 +246,7 @@ class _CourseSettingsState extends State<CourseSettings> {
                   autofocus: true,
                   onChanged: (value) {
                     setState(() {
-                      this.room = value;
+                      this.room = value.trim();
                     });
                   },
                 ),
@@ -178,16 +262,44 @@ class _CourseSettingsState extends State<CourseSettings> {
                   autofocus: true,
                   onChanged: (value) {
                     setState(() {
-                      this.teacher = value;
+                      this.teacher = value.trim();
                     });
                   },
                 ),
               ],
             ),
             ExpansionTile(
+              leading: Text('星        期:'),
+              title: Text('${this._groupWeekday}'),
+              initiallyExpanded: true,
+              children: <Widget>[
+                Row(
+                  children: List.generate(7, (idx) {
+                    return Expanded(
+                      child: Column(
+                        children: <Widget>[
+                          Text('${idx + 1}'),
+                          Radio<int>(
+                            value: idx + 1,
+                            groupValue: _groupWeekday,
+                            onChanged: (value) {
+                              setState(() {
+                                this._groupWeekday = value;
+                                this.weekday = value;
+                              });
+                            },
+                          ),
+                        ],
+                      ),
+                    );
+                  }).toList(),
+                ),
+              ],
+            ),
+            ExpansionTile(
               leading: Text('周        数:'),
               title: Text('${this.weeks.join(', ')}'),
-              children: List.generate(count, (idx) => idx + 1).map((row) {
+              children: List.generate(weekCount, (idx) {
                 skip += take;
                 return Row(
                   children: getWeeks().skip(skip).take(take).map((week) {
@@ -278,9 +390,13 @@ class _CourseSettingsState extends State<CourseSettings> {
               children: <Widget>[
                 Expanded(
                   child: FlatButton(
+                    color: widget.modifying == true ? Colors.red : null,
                     child: Text(
-                      '取消',
-                      style: TextStyle(color: Colors.blueAccent),
+                      widget.modifying == true ? '删除' : '取消',
+                      style: TextStyle(
+                          color: widget.modifying == true
+                              ? Colors.white
+                              : Colors.blueAccent),
                     ),
                     onPressed: _onCancelBtnPressed,
                   ),

@@ -10,6 +10,7 @@ List<CourseModel> getValidCourses(List<CourseModel> courses, {
 
   List<CourseModel> ret = List.of(courses);
 
+
   ret.removeWhere((course) {
     return (course.start < 1) ||
         (course.step < 1) ||

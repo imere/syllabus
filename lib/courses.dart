@@ -3,8 +3,9 @@ import 'package:schedule/course.model.dart';
 import 'package:schedule/courses_item.dart';
 import 'package:schedule/empty.model.dart';
 import 'package:schedule/empty_box.dart';
+import 'package:schedule/services/service.dart' show coursesFs, updateState$;
 import 'package:schedule/utils/course_util.dart' show getProcessedCourses;
-import 'package:schedule/utils/util.dart' show getTotalCount, generateCourses;
+import 'package:schedule/utils/util.dart' show getTotalCount;
 
 class Courses extends StatefulWidget {
   Courses({
@@ -55,9 +56,15 @@ class CourseColumn extends StatefulWidget {
 
 class _CourseColumnState extends State<CourseColumn> {
   @override
+  bool get mounted {
+    updateState$.listen((_) => setState(() {}));
+    return super.mounted;
+  }
+
+  @override
   Widget build(BuildContext context) {
     List c = getProcessedCourses(
-      courses: generateCourses(),
+      courses: coursesFs,
       weekday: widget.weekday,
       minHeight: widget.minItemHeight,
     );
