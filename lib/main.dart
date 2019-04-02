@@ -1,16 +1,20 @@
 import 'dart:convert';
+import 'dart:isolate';
 
+import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:schedule/course.model.dart';
 import 'package:schedule/course_settings/course_settings.dart';
 import 'package:schedule/schedule.dart';
-import 'package:schedule/services/service.dart' show updateState$, curWeekFs;
-import 'package:schedule/services/service.dart' show coursesFs;
+import 'package:schedule/services/service.dart'
+    show updateState$, curWeekFs, coursesFs;
 import 'package:schedule/utils/constants.dart'
-    show THEME_PRIMARY_SWATCH, MAIN_APPBAR_BG;
-import 'package:schedule/utils/constants.dart'
-    show PREFS_CURRENT_WEEK, PREFS_ALL_COURSES;
+    show
+    THEME_PRIMARY_SWATCH,
+    MAIN_APPBAR_BG,
+    PREFS_CURRENT_WEEK,
+    PREFS_ALL_COURSES;
 import 'package:schedule/utils/util.dart' show getWeeks;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -26,16 +30,27 @@ Future<void> loadCourses() async {
 }
 
 Future<void> main() async {
+  await AndroidAlarmManager.initialize();
+
   await loadCurWeek();
   await loadCourses();
+
   runApp(App());
+
+  await AndroidAlarmManager.periodic(
+    const Duration(minutes: 1),
+    0,
+        () {
+      print('${DateTime.now().toIso8601String()} ${Isolate.current.hashCode}');
+    },
+  );
 }
 
 class App extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: '课程表',
+      title: 'Syllabus',
       theme: ThemeData(
         primarySwatch: THEME_PRIMARY_SWATCH,
       ),

@@ -10,7 +10,6 @@ List<CourseModel> getValidCourses(List<CourseModel> courses, {
 
   List<CourseModel> ret = List.of(courses);
 
-
   ret.removeWhere((course) {
     return (course.start < 1) ||
         (course.step < 1) ||
@@ -96,23 +95,12 @@ List _handleValidOverlayCourses(List courses) {
   /// may also be stored, but they will be processed later
   Map<String, List> map = Map();
 
-  String prevKey = '${courses.first.start}-${courses.first.step}';
-
   courses.forEach((course) {
+    // Map all exist keys
     String key = '${course.start}-${course.step}';
+    if (map[key] == null) map[key] = [];
 
-    /// We use [Map], so it's safe to only check keys
-    if (key == prevKey) {
-      if (map[key] == null) map[key] = [];
-      map[key].add(course);
-    } else {
-      if (map[key] == null) {
-        map[key] = [];
-        map[key].add(course);
-        return;
-      }
-      ret.add(map[key]);
-    }
+    map[key].add(course);
   });
 
   final blocks = List.generate(getTotalCount(), (idx) => idx + 1);

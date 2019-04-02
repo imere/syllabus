@@ -51,12 +51,13 @@ class _CourseSettingsState extends State<CourseSettings> {
                   }
                 });
               },
-              children: List.generate(getTotalCount(), (idx) => idx + 1)
-                  .map((val) => Text(
-                '$val',
-                style: TextStyle(fontSize: 30),
-              ))
-                  .toList(),
+              children: List.generate(
+                  getTotalCount(),
+                      (idx) =>
+                      Text(
+                        '${idx + 1}',
+                        style: TextStyle(fontSize: 30),
+                      )).toList(),
             ),
           );
         });
@@ -75,12 +76,12 @@ class _CourseSettingsState extends State<CourseSettings> {
                 });
               },
               children: List.generate(
-                  getTotalCount() - this.start + 1, (idx) => idx + 1)
-                  .map((val) => Text(
-                '$val',
-                style: TextStyle(fontSize: 30),
-              ))
-                  .toList(),
+                  getTotalCount() - this.start + 1,
+                      (idx) =>
+                      Text(
+                        '${idx + 1}',
+                        style: TextStyle(fontSize: 30),
+                      )).toList(),
             ),
           );
         });
@@ -89,14 +90,8 @@ class _CourseSettingsState extends State<CourseSettings> {
   void _removeCurCourse() {
     final CourseModel course = widget.course;
     coursesFs.remove(coursesFs.firstWhere((el) {
-      return course.name == el.name &&
-          course.room == el.room &&
-          course.teacher == el.teacher &&
-          course.start == el.start &&
-          course.step == el.step &&
-          course.weekday == el.weekday &&
-          course.weeks.length == el.weeks.length &&
-          course.weeks.every((week) => el.weeks.contains(week));
+      // Operator == has been overriden
+      return course == el;
     }));
   }
 
@@ -163,8 +158,7 @@ class _CourseSettingsState extends State<CourseSettings> {
       Navigator.pop(context);
     } else {
       if (_checkInvalid()) {
-        return Toast.show('课程时间不允许交叉, 请重新设置', context,
-            duration: Toast.LENGTH_SHORT, gravity: Toast.CENTER);
+        return Toast.show('课程时间不允许交叉, 请重新设置', context, gravity: Toast.CENTER);
       } else {
         _saveCourse(widget.course);
         Navigator.pop(context);

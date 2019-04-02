@@ -56,9 +56,9 @@ class CourseColumn extends StatefulWidget {
 
 class _CourseColumnState extends State<CourseColumn> {
   @override
-  bool get mounted {
+  void initState() {
     updateState$.listen((_) => setState(() {}));
-    return super.mounted;
+    super.initState();
   }
 
   @override

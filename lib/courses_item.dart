@@ -69,48 +69,56 @@ class _CourseItemState extends State<CourseItem> {
             context: context,
             barrierDismissible: true,
             builder: (BuildContext ctx0) {
-              return Material(
-                color: Colors.white54,
-                child: GridView(
-                  padding: EdgeInsets.all(10.0),
-                  gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
-                    crossAxisCount: 2,
-                  ),
-                  children: courses.map((course) {
-                    bool isCurWeek = course.weeks.contains(curWeekFs);
-                    return GridTile(
-                      child: GestureDetector(
-                        child: Container(
-                          decoration: BoxDecoration(
-                            color: GRID_COURSES_BG,
-                            borderRadius: BorderRadius.circular(10.0),
-                          ),
-                          margin: EdgeInsets.all(10.0),
-                          child: Text(
-                            '${isCurWeek ? '' : '[非本周]'}${course.name}@${course
-                                .room}\n${course.teacher}',
-                            style: TextStyle(
-                              fontSize: 20,
+              if (courses.length == 1) {
+                return CourseSettings(
+                  title: '修改课程',
+                  course: courses.first,
+                  modifying: true,
+                );
+              } else {
+                return Material(
+                  color: Colors.white54,
+                  child: GridView(
+                    padding: EdgeInsets.all(10.0),
+                    gridDelegate: SliverGridDelegateWithFixedCrossAxisCount(
+                      crossAxisCount: 2,
+                    ),
+                    children: courses.map((course) {
+                      bool isCurWeek = course.weeks.contains(curWeekFs);
+                      return GridTile(
+                        child: GestureDetector(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: GRID_COURSES_BG,
+                              borderRadius: BorderRadius.circular(10.0),
+                            ),
+                            margin: EdgeInsets.all(10.0),
+                            child: Text(
+                              '${isCurWeek ? '' : '[非本周]'}${course
+                                  .name}@${course.room}\n${course.teacher}',
+                              style: TextStyle(
+                                fontSize: 20,
+                              ),
                             ),
                           ),
+                          onTap: () {
+                            showDialog(
+                              context: ctx0,
+                              builder: (BuildContext _) {
+                                return CourseSettings(
+                                  title: '修改课程',
+                                  course: course,
+                                  modifying: true,
+                                );
+                              },
+                            );
+                          },
                         ),
-                        onTap: () {
-                          showDialog(
-                            context: ctx0,
-                            builder: (BuildContext _) {
-                              return CourseSettings(
-                                title: '修改课程',
-                                course: course,
-                                modifying: true,
-                              );
-                            },
-                          );
-                        },
-                      ),
-                    );
-                  }).toList(),
-                ),
-              );
+                      );
+                    }).toList(),
+                  ),
+                );
+              }
             },
           );
         },

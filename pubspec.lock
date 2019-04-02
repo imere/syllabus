@@ -104,6 +104,13 @@ packages:
     description: flutter
     source: sdk
     version: "0.0.0"
+  flutter_local_notifications:
+    dependency: "direct main"
+    description:
+      name: flutter_local_notifications
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "0.6.0"
   flutter_test:
     dependency: "direct dev"
     description: flutter
@@ -186,6 +193,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "1.5.0"
+  platform:
+    dependency: transitive
+    description:
+      name: platform
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "2.2.0"
   pub_semver:
     dependency: transitive
     description:
@@ -317,6 +331,13 @@ packages:
       url: "https://pub.flutter-io.cn"
     source: hosted
     version: "2.0.8"
+  vibration:
+    dependency: "direct main"
+    description:
+      name: vibration
+      url: "https://pub.flutter-io.cn"
+    source: hosted
+    version: "1.0.1"
   watcher:
     dependency: transitive
     description:
