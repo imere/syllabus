@@ -5,7 +5,7 @@ import 'package:schedule/empty.model.dart';
 import 'package:schedule/empty_box.dart';
 import 'package:schedule/services/service.dart' show coursesFs, updateState$;
 import 'package:schedule/utils/course_util.dart' show getProcessedCourses;
-import 'package:schedule/utils/util.dart' show getTotalCount;
+import 'package:schedule/utils/util.dart' show getRowCount;
 
 class Courses extends StatefulWidget {
   Courses({
@@ -29,7 +29,7 @@ class _CoursesState extends State<Courses> {
   @override
   Widget build(BuildContext context) {
     // Get min box height
-    _minHeight = widget.coursesHeight / getTotalCount();
+    _minHeight = widget.coursesHeight / getRowCount();
 
     return SizedBox(
       height: widget.coursesHeight,

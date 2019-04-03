@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:schedule/course.model.dart';
 import 'package:schedule/empty.model.dart';
-import 'package:schedule/utils/util.dart' show getTotalCount;
+import 'package:schedule/utils/util.dart' show getRowCount;
 
 List<CourseModel> getValidCourses(List<CourseModel> courses, {
   List weekdays = const [1, 2, 3, 4, 5, 6, 7],
@@ -13,7 +13,7 @@ List<CourseModel> getValidCourses(List<CourseModel> courses, {
   ret.removeWhere((course) {
     return (course.start < 1) ||
         (course.step < 1) ||
-        (course.start + course.step - 1 > getTotalCount()) ||
+        (course.start + course.step - 1 > getRowCount()) ||
         !weekdays.contains(course.weekday);
   });
 
@@ -69,12 +69,12 @@ List getFilledCourses({
   });
 
   // Fill with empty block if there is space at the end
-  if (prevStart + prevStep - 1 < getTotalCount()) {
+  if (prevStart + prevStep - 1 < getRowCount()) {
     ret.add(EmptyModel(
       minHeight: minHeight,
       weekday: weekday,
       start: prevStart + prevStep,
-      step: getTotalCount() - (prevStart + prevStep) + 1,
+      step: getRowCount() - (prevStart + prevStep) + 1,
     ));
   }
 
@@ -103,7 +103,7 @@ List _handleValidOverlayCourses(List courses) {
     map[key].add(course);
   });
 
-  final blocks = List.generate(getTotalCount(), (idx) => idx + 1);
+  final blocks = List.generate(getRowCount(), (idx) => idx + 1);
   // Traverse all rows
   blocks.forEach((start) {
     // Traverse all steps

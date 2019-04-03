@@ -1,23 +1,9 @@
 import 'package:schedule/course.model.dart';
+import 'package:schedule/services/service.dart' show voicesFs, selectedVoiceFs;
 
-int getTotalCount() {
+int getRowCount() {
   // Even number
   return 2 * 7;
-}
-
-List<Map<int, String>> getTimesMap() {
-  return [
-    {1: '8:00'},
-    {2: '9:00'},
-    {3: '10:00'},
-    {4: '11:00'},
-    {5: '14:00'},
-    {6: '15:00'},
-    {7: '16:00'},
-    {8: '17:00'},
-    {9: '20:00'},
-    {10: '21:00'},
-  ];
 }
 
 List<String> getWeekdays() {
@@ -35,6 +21,10 @@ List<String> getWeekdays() {
 List<int> getWeeks() {
   return List.generate(30, (idx) => idx + 1);
 }
+
+/// Check whether current voice resource is valid
+bool checkResourceValid() =>
+    voicesFs[selectedVoiceFs] != '' && voicesFs[selectedVoiceFs] != null;
 
 List<CourseModel> generateCourses() {
   List<CourseModel> list = [];
@@ -90,10 +80,10 @@ List<CourseModel> generateCourses() {
     CourseModel(
       name: '阿斯利康大家',
       room: '12-110',
-      start: 11,
+      start: 5,
       step: 2,
       weekday: 1,
-      weeks: [1, 2, 3],
+      weeks: [1, 3, 5, 7, 9],
     ),
   ]);
   return list;

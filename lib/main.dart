@@ -1,44 +1,32 @@
-import 'dart:convert';
 import 'dart:isolate';
 
 import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:schedule/course.model.dart';
 import 'package:schedule/course_settings/course_settings.dart';
+import 'package:schedule/preload.dart';
+import 'package:schedule/ring.dart';
 import 'package:schedule/schedule.dart';
 import 'package:schedule/services/service.dart'
-    show updateState$, curWeekFs, coursesFs;
+    show updateState$, prefFs, selectedColorFs, curWeekFs;
+import 'package:schedule/settings/settings.dart';
 import 'package:schedule/utils/constants.dart'
-    show
-    THEME_PRIMARY_SWATCH,
-    MAIN_APPBAR_BG,
-    PREFS_CURRENT_WEEK,
-    PREFS_ALL_COURSES;
+    show MD_COLORS, PREFS_CURRENT_WEEK;
 import 'package:schedule/utils/util.dart' show getWeeks;
 import 'package:shared_preferences/shared_preferences.dart';
 
-Future<void> loadCurWeek() async {
-  final pref = await SharedPreferences.getInstance();
-  curWeekFs = pref.getInt(PREFS_CURRENT_WEEK) ?? 1;
-}
-
-Future<void> loadCourses() async {
-  final pref = await SharedPreferences.getInstance();
-  List tmpList = json.decode(pref.getString(PREFS_ALL_COURSES) ?? '[]');
-  tmpList.forEach((map) => coursesFs.add(CourseModel.fromMap(map)));
-}
-
 Future<void> main() async {
+  /// Set global instance
+  prefFs = await SharedPreferences.getInstance();
+
   await AndroidAlarmManager.initialize();
 
-  await loadCurWeek();
-  await loadCourses();
+  preload();
 
   runApp(App());
 
   await AndroidAlarmManager.periodic(
-    const Duration(minutes: 1),
+    const Duration(seconds: 10),
     0,
         () {
       print('${DateTime.now().toIso8601String()} ${Isolate.current.hashCode}');
@@ -52,7 +40,7 @@ class App extends StatelessWidget {
     return MaterialApp(
       title: 'Syllabus',
       theme: ThemeData(
-        primarySwatch: THEME_PRIMARY_SWATCH,
+        primarySwatch: MD_COLORS[selectedColorFs],
       ),
       home: HomePage(title: '课程表'),
     );
@@ -72,9 +60,7 @@ class _HomePageState extends State<HomePage> {
   void _setCurWeek(int week) {
     curWeekFs = week;
     setState(() {
-      SharedPreferences.getInstance().then((p) {
-        p.setInt(PREFS_CURRENT_WEEK, week);
-      });
+      prefFs.setInt(PREFS_CURRENT_WEEK, week);
     });
   }
 
@@ -103,7 +89,6 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
-    /// Get update signal from others
     updateState$.listen((_) => setState(() {}));
     super.initState();
   }
@@ -122,7 +107,7 @@ class _HomePageState extends State<HomePage> {
           onTap: _changeWeek,
         ),
         centerTitle: true,
-        backgroundColor: MAIN_APPBAR_BG,
+        backgroundColor: MD_COLORS[selectedColorFs],
         brightness: Brightness.dark,
         actions: <Widget>[
           IconButton(
@@ -130,10 +115,32 @@ class _HomePageState extends State<HomePage> {
             onPressed: () {
               showDialog(
                 context: context,
-                builder: (BuildContext context) {
+                builder: (BuildContext ctx) {
                   return CourseSettings(
                     title: '添加课程',
                   );
+                },
+              );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.settings),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext ctx) {
+                  return Settings(title: '设置');
+                },
+              );
+            },
+          ),
+          IconButton(
+            icon: Icon(Icons.play_arrow),
+            onPressed: () {
+              showDialog(
+                context: context,
+                builder: (BuildContext ctx) {
+                  return Ring();
                 },
               );
             },

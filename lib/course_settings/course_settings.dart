@@ -7,7 +7,7 @@ import 'package:schedule/services/service.dart' show coursesFs;
 import 'package:schedule/services/service.dart' show updateState$;
 import 'package:schedule/utils/constants.dart' show PREFS_ALL_COURSES;
 import 'package:schedule/utils/course_util.dart' show getValidCourses;
-import 'package:schedule/utils/util.dart' show getTotalCount, getWeeks;
+import 'package:schedule/utils/util.dart' show getRowCount, getWeeks;
 import 'package:shared_preferences/shared_preferences.dart';
 import 'package:swipedetector/swipedetector.dart';
 import 'package:toast/toast.dart';
@@ -46,13 +46,13 @@ class _CourseSettingsState extends State<CourseSettings> {
               onSelectedItemChanged: (idx) {
                 setState(() {
                   this.start = idx + 1;
-                  if (this.start + this.step > getTotalCount() + 1) {
-                    this.step = getTotalCount() - this.start + 1;
+                  if (this.start + this.step > getRowCount() + 1) {
+                    this.step = getRowCount() - this.start + 1;
                   }
                 });
               },
               children: List.generate(
-                  getTotalCount(),
+                  getRowCount(),
                       (idx) =>
                       Text(
                         '${idx + 1}',
@@ -76,7 +76,7 @@ class _CourseSettingsState extends State<CourseSettings> {
                 });
               },
               children: List.generate(
-                  getTotalCount() - this.start + 1,
+                  getRowCount() - this.start + 1,
                       (idx) =>
                       Text(
                         '${idx + 1}',
@@ -87,12 +87,14 @@ class _CourseSettingsState extends State<CourseSettings> {
         });
   }
 
-  void _removeCurCourse() {
+  CourseModel _removeCurCourse() {
     final CourseModel course = widget.course;
-    coursesFs.remove(coursesFs.firstWhere((el) {
+    CourseModel toBeRemoved = coursesFs.firstWhere((el) {
       // Operator == has been overriden
       return course == el;
-    }));
+    });
+    coursesFs.remove(toBeRemoved);
+    return toBeRemoved;
   }
 
   void _saveCourse(CourseModel course) {
@@ -111,27 +113,36 @@ class _CourseSettingsState extends State<CourseSettings> {
 
   void _modifyCourse(CourseModel course) {
     setState(() {
-      _removeCurCourse();
-
-      coursesFs.add(CourseModel(
-        name: this.name,
-        room: this.room,
-        teacher: this.teacher,
+      CourseModel removedCourse = _removeCurCourse();
+      if (_checkInvalid(
+        weekday: this.weekday,
         start: this.start,
         step: this.step,
-        weekday: this.weekday,
-        weeks: this.weeks,
-      ));
+      )) {
+        coursesFs.add(removedCourse);
+        Toast.show('课程时间不允许交叉, 请重新设置', context, gravity: Toast.CENTER);
+      } else {
+        coursesFs.add(CourseModel(
+          name: this.name,
+          room: this.room,
+          teacher: this.teacher,
+          start: this.start,
+          step: this.step,
+          weekday: this.weekday,
+          weeks: this.weeks,
+        ));
+        Navigator.pop(context);
+      }
     });
   }
 
-  bool _checkInvalid() {
-    return getValidCourses(coursesFs, weekdays: [this.weekday]).any((course) {
+  bool _checkInvalid({int weekday, int start, int step}) {
+    return getValidCourses(coursesFs, weekdays: [weekday]).any((course) {
       return course.invalidOverlaps(
         inCourses: coursesFs,
-        weekday: this.weekday,
-        start: this.start,
-        step: this.step,
+        weekday: weekday,
+        start: start,
+        step: step,
       );
     });
   }
@@ -155,9 +166,12 @@ class _CourseSettingsState extends State<CourseSettings> {
   void _onSaveBtnPressed() {
     if (widget.modifying == true) {
       _modifyCourse(widget.course);
-      Navigator.pop(context);
     } else {
-      if (_checkInvalid()) {
+      if (_checkInvalid(
+        weekday: this.weekday,
+        start: this.start,
+        step: this.step,
+      )) {
         return Toast.show('课程时间不允许交叉, 请重新设置', context, gravity: Toast.CENTER);
       } else {
         _saveCourse(widget.course);

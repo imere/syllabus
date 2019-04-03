@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:schedule/utils/util.dart' show getTotalCount;
+import 'package:schedule/services/service.dart' show timesFs;
+import 'package:schedule/utils/util.dart' show getRowCount;
 
 class Times extends StatefulWidget {
   Times({Key key, this.timesHeight}) : super(key: key);
@@ -15,27 +16,33 @@ class _TimesState extends State<Times> {
 
   @override
   Widget build(BuildContext context) {
-    _itemHeight = widget.timesHeight / getTotalCount();
+    _itemHeight = widget.timesHeight / getRowCount();
 
-    final times = List.generate(getTotalCount(), (idx) => idx + 1);
+    // Sort before using
+    timesFs.sort((a, b) => a.gt(b) ? 1 : -1);
 
     return SizedBox(
       height: widget.timesHeight,
       child: Column(
-        children: times.map((n) {
-          return _buildTimeItem(n: n, height: _itemHeight);
-        }).toList(),
+        children: List.generate(getRowCount(),
+                (idx) => _buildTimeItem(n: idx + 1, height: _itemHeight)),
       ),
     );
   }
 }
 
-SizedBox _buildTimeItem({@required int n, @required double height}) {
-  return SizedBox(
+Container _buildTimeItem({@required int n, @required double height}) {
+  String time = '';
+
+  try {
+    time = timesFs.elementAt(n - 1).toString();
+  } catch (_) {}
+
+  return Container(
     height: height,
     child: Center(
       child: Text(
-        '$n',
+        '$n\n$time',
         textAlign: TextAlign.center,
       ),
     ),
