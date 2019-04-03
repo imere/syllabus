@@ -1,6 +1,5 @@
 import 'package:rxdart/rxdart.dart';
 import 'package:schedule/course.model.dart';
-import 'package:schedule/time.model.dart';
 import 'package:schedule/utils/constants.dart'
     show DEFAULT_VOICE, CUSTOM_VOICE, DEFAULT_MD_COLOR;
 import 'package:shared_preferences/shared_preferences.dart';
@@ -17,7 +16,7 @@ SharedPreferences prefFs;
 int curWeekFs = 1;
 
 /// All times
-final List<TimeModel> timesFs = [];
+final Map<String, String> timesFs = {};
 
 /// All courses
 final List<CourseModel> coursesFs = [];

@@ -26,11 +26,13 @@ class _ContentState extends State<Content> {
       child: Row(
         children: <Widget>[
           Expanded(
+            flex: 2,
             child: Times(timesHeight: _contentHeight),
           ),
         ]
           ..addAll(weekdays.map((weekday) {
             return Expanded(
+              flex: 3,
               child: Courses(
                 coursesHeight: _contentHeight,
                 weekday: weekdays.indexOf(weekday) + 1,

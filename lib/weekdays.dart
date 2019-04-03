@@ -19,14 +19,20 @@ class _WeeksState extends State<Weeks> {
   Widget build(BuildContext context) {
     _totalWidth = MediaQuery.of(context).size.width;
     _totalHeight = MediaQuery.of(context).size.height;
-    _itemWidth = _totalWidth / (weekdays.length + 1);
+    _itemWidth = double.infinity;
 
     return Row(
       children: <Widget>[
-        _buildMonthColumn(width: _itemWidth),
+        Expanded(
+          flex: 2,
+          child: _buildMonthColumn(width: _itemWidth),
+        ),
       ]
         ..addAll(weekdays.map((week) {
-          return _buildWeekColumn(week: week, width: _itemWidth);
+          return Expanded(
+            flex: 3,
+            child: _buildWeekColumn(week: week, width: _itemWidth),
+          );
         })),
     );
   }

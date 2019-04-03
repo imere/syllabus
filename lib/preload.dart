@@ -10,7 +10,6 @@ import 'package:schedule/services/service.dart'
         coursesFs,
         voicesFs,
         selectedVoiceFs;
-import 'package:schedule/time.model.dart';
 import 'package:schedule/utils/constants.dart'
     show
         DEFAULT_MD_COLOR,
@@ -18,6 +17,7 @@ import 'package:schedule/utils/constants.dart'
         PREFS_ALL_COURSES,
         PREFS_TIMES,
         PREFS_CUSTOM_VOICE_PATH,
+        DEFAULT_VOICE,
         CUSTOM_VOICE,
         PREFS_SELECTED_COLOR,
         PREFS_SELECTED_VOICE;
@@ -27,9 +27,8 @@ void _loadCurWeek() {
 }
 
 void _loadTimes() {
-  json
-      .decode(prefFs.getString(PREFS_TIMES) ?? '[]')
-      .forEach((map) => timesFs.add(TimeModel.fromMap(map)));
+  Map map = json.decode(prefFs.getString(PREFS_TIMES) ?? '{}');
+  map.keys.forEach((k) => timesFs[k] = map[k]);
 }
 
 void _loadCourses() {
@@ -43,7 +42,7 @@ void _loadCustomVoicePath() {
 }
 
 void _loadSelectedVoice() {
-  selectedVoiceFs = prefFs.getString(PREFS_SELECTED_VOICE) ?? '';
+  selectedVoiceFs = prefFs.getString(PREFS_SELECTED_VOICE) ?? DEFAULT_VOICE;
 }
 
 void _loadColor() {

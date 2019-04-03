@@ -1,6 +1,3 @@
-import 'dart:isolate';
-
-import 'package:android_alarm_manager/android_alarm_manager.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:schedule/course_settings/course_settings.dart';
@@ -8,8 +5,9 @@ import 'package:schedule/preload.dart';
 import 'package:schedule/ring.dart';
 import 'package:schedule/schedule.dart';
 import 'package:schedule/services/service.dart'
-    show updateState$, prefFs, selectedColorFs, curWeekFs;
+    show updateState$, prefFs, selectedColorFs, timesFs, curWeekFs, coursesFs;
 import 'package:schedule/settings/settings.dart';
+import 'package:schedule/time.model.dart';
 import 'package:schedule/utils/constants.dart'
     show MD_COLORS, PREFS_CURRENT_WEEK;
 import 'package:schedule/utils/util.dart' show getWeeks;
@@ -19,19 +17,19 @@ Future<void> main() async {
   /// Set global instance
   prefFs = await SharedPreferences.getInstance();
 
-  await AndroidAlarmManager.initialize();
+//  await AndroidAlarmManager.initialize();
 
   preload();
 
   runApp(App());
 
-  await AndroidAlarmManager.periodic(
-    const Duration(seconds: 10),
-    0,
-        () {
-      print('${DateTime.now().toIso8601String()} ${Isolate.current.hashCode}');
-    },
-  );
+//  await AndroidAlarmManager.periodic(
+//    const Duration(minutes: 1),
+//    0,
+//    () {
+//      print('${DateTime.now().toIso8601String()} ${Isolate.current.hashCode}');
+//    },
+//  );
 }
 
 class App extends StatelessWidget {
@@ -57,6 +55,33 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool _matched = false;
+
+  /// Check time matched for alarm
+  void _checkTimeMatches() {
+    _matched = coursesFs.any((course) {
+      print(timesFs['${course.start}']);
+      try {
+        TimeModel time = TimeModel.fromString(timesFs['${course.start}']);
+        return (curWeekFs == course.weekday) &&
+            (time.toString() ==
+                '${DateTime
+                    .now()
+                    .hour}:${DateTime
+                    .now()
+                    .minute}');
+      } catch (_) {
+        /// In case of `timeFs[key]` == null
+        return false;
+      }
+    });
+
+    if (_matched) {
+      showDialog(context: context, builder: (ctx) => Ring());
+    }
+    Future.delayed(Duration(minutes: 1), _checkTimeMatches);
+  }
+
   void _setCurWeek(int week) {
     curWeekFs = week;
     setState(() {
@@ -89,6 +114,9 @@ class _HomePageState extends State<HomePage> {
 
   @override
   void initState() {
+    Future.delayed(Duration(seconds: 0), () {
+      _checkTimeMatches();
+    });
     updateState$.listen((_) => setState(() {}));
     super.initState();
   }

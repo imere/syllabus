@@ -42,10 +42,10 @@ class _CourseItemChildState extends State<CourseItemChild> {
                 .size
                 .width /
             1.5,
-        maxLines: 8,
-        overflow: TextOverflow.ellipsis,
+        softWrap: true,
         style: TextStyle(
           color: isCurWeek ? Colors.white : Colors.white,
+          fontWeight: FontWeight.w500,
         ),
       ),
     );
