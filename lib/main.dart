@@ -1,5 +1,6 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:schedule/course.model.dart';
 import 'package:schedule/course_settings/course_settings.dart';
 import 'package:schedule/preload.dart';
 import 'package:schedule/ring.dart';
@@ -10,6 +11,7 @@ import 'package:schedule/settings/settings.dart';
 import 'package:schedule/time.model.dart';
 import 'package:schedule/utils/constants.dart'
     show MD_COLORS, PREFS_CURRENT_WEEK;
+import 'package:schedule/utils/course_util.dart' show getValidCourses;
 import 'package:schedule/utils/util.dart' show getWeeks;
 import 'package:shared_preferences/shared_preferences.dart';
 
@@ -55,31 +57,36 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
-  bool _matched = false;
-
   /// Check time matched for alarm
   void _checkTimeMatches() {
-    _matched = coursesFs.any((course) {
-      print(timesFs['${course.start}']);
+    List<CourseModel> matched;
+    matched = getValidCourses(coursesFs, weekdays: [DateTime
+        .now()
+        .weekday
+    ])
+        .where((course) {
       try {
         TimeModel time = TimeModel.fromString(timesFs['${course.start}']);
-        return (curWeekFs == course.weekday) &&
-            (time.toString() ==
-                '${DateTime
-                    .now()
-                    .hour}:${DateTime
-                    .now()
-                    .minute}');
+        return (course.weeks.contains(curWeekFs)) &&
+            (time ==
+                TimeModel.fromString(
+                    '${DateTime
+                        .now()
+                        .hour}:${DateTime
+                        .now()
+                        .minute}'));
       } catch (_) {
         /// In case of `timeFs[key]` == null
         return false;
       }
-    });
+    })
+        .toList()
+        .cast<CourseModel>();
 
-    if (_matched) {
-      showDialog(context: context, builder: (ctx) => Ring());
+    if (matched != null && matched.isNotEmpty) {
+      showDialog(context: context, builder: (ctx) => Ring(courses: matched));
     }
-    Future.delayed(Duration(minutes: 1), _checkTimeMatches);
+    Future.delayed(Duration(seconds: 3), _checkTimeMatches);
   }
 
   void _setCurWeek(int week) {
@@ -158,17 +165,6 @@ class _HomePageState extends State<HomePage> {
                 context: context,
                 builder: (BuildContext ctx) {
                   return Settings(title: '设置');
-                },
-              );
-            },
-          ),
-          IconButton(
-            icon: Icon(Icons.play_arrow),
-            onPressed: () {
-              showDialog(
-                context: context,
-                builder: (BuildContext ctx) {
-                  return Ring();
                 },
               );
             },

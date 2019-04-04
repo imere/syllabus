@@ -7,9 +7,9 @@ import 'package:schedule/utils/constants.dart' show DEFAULT_VOICE;
 import 'package:schedule/utils/util.dart' show checkResourceValid;
 
 class Ring extends StatefulWidget {
-  Ring({this.course}) : assert(course != null);
+  Ring({@required this.courses}) : assert(courses != null);
 
-  final CourseModel course;
+  final List<CourseModel> courses;
 
   @override
   State<StatefulWidget> createState() => _RingState();
@@ -40,13 +40,15 @@ class _RingState extends State<Ring> {
   @override
   Widget build(BuildContext context) {
     return AlertDialog(
-      title: Text('该上课了'),
+      title: Text('该上课了  ${TimeOfDay
+          .now()
+          .hour}:${TimeOfDay
+          .now()
+          .minute}'),
       content: Text(
-        '${TimeOfDay
-            .now()
-            .hour}:${TimeOfDay
-            .now()
-            .minute}\n第${widget.course.start}节',
+        '''
+        第${widget.courses.isNotEmpty ? widget.courses.first.start : ''}节
+        ''',
       ),
       actions: <Widget>[
         FlatButton(onPressed: () => Navigator.pop(context), child: Text('确定')),

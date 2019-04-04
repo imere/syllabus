@@ -24,13 +24,13 @@ class _WeeksState extends State<Weeks> {
     return Row(
       children: <Widget>[
         Expanded(
-          flex: 2,
+          flex: 6,
           child: _buildMonthColumn(width: _itemWidth),
         ),
       ]
         ..addAll(weekdays.map((week) {
           return Expanded(
-            flex: 3,
+            flex: 7,
             child: _buildWeekColumn(week: week, width: _itemWidth),
           );
         })),
