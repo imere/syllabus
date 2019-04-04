@@ -86,7 +86,7 @@ class _HomePageState extends State<HomePage> {
     if (matched != null && matched.isNotEmpty) {
       showDialog(context: context, builder: (ctx) => Ring(courses: matched));
     }
-    Future.delayed(Duration(seconds: 3), _checkTimeMatches);
+    Future.delayed(Duration(minutes: 1), _checkTimeMatches);
   }
 
   void _setCurWeek(int week) {
