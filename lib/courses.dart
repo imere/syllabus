@@ -28,7 +28,7 @@ class _CoursesState extends State<Courses> {
 
   @override
   Widget build(BuildContext context) {
-    // Get min box height
+    /// Get min box height
     _minHeight = widget.coursesHeight / getRowCount();
 
     return SizedBox(

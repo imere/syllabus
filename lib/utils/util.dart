@@ -2,7 +2,7 @@ import 'package:schedule/course.model.dart';
 import 'package:schedule/services/service.dart' show voicesFs, selectedVoiceFs;
 
 int getRowCount() {
-  // Even number
+  /// Even number
   return 2 * 7;
 }
 

@@ -3,13 +3,11 @@ import 'dart:convert';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:schedule/course.model.dart' show CourseModel;
-import 'package:schedule/services/service.dart' show coursesFs;
-import 'package:schedule/services/service.dart' show updateState$;
+import 'package:schedule/services/service.dart' show updateState$, coursesFs;
 import 'package:schedule/utils/constants.dart' show PREFS_ALL_COURSES;
 import 'package:schedule/utils/course_util.dart' show getValidCourses;
 import 'package:schedule/utils/util.dart' show getRowCount, getWeeks;
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:swipedetector/swipedetector.dart';
 import 'package:toast/toast.dart';
 
 class CourseSettings extends StatefulWidget {
@@ -53,8 +51,7 @@ class _CourseSettingsState extends State<CourseSettings> {
               },
               children: List.generate(
                   getRowCount(),
-                      (idx) =>
-                      Text(
+                  (idx) => Text(
                         '${idx + 1}',
                         style: TextStyle(fontSize: 30),
                       )).toList(),
@@ -77,8 +74,7 @@ class _CourseSettingsState extends State<CourseSettings> {
               },
               children: List.generate(
                   getRowCount() - this.start + 1,
-                      (idx) =>
-                      Text(
+                  (idx) => Text(
                         '${idx + 1}',
                         style: TextStyle(fontSize: 30),
                       )).toList(),
@@ -90,7 +86,7 @@ class _CourseSettingsState extends State<CourseSettings> {
   CourseModel _removeCurCourse() {
     final CourseModel course = widget.course;
     CourseModel toBeRemoved = coursesFs.firstWhere((el) {
-      // Operator == has been overriden
+      /// Operator == has been overriden
       return course == el;
     });
     coursesFs.remove(toBeRemoved);
@@ -179,17 +175,6 @@ class _CourseSettingsState extends State<CourseSettings> {
       }
     }
     _changeStorage();
-  }
-
-  dynamic _swipeAction(int week) {
-    setState(() {
-      if (this.weeks.contains(week)) {
-        this.weeks.remove(week);
-      } else {
-        this.weeks.add(week);
-      }
-      this.weeks.sort((a, b) => a - b);
-    });
   }
 
   void _loadCourseInfo() {
@@ -312,38 +297,24 @@ class _CourseSettingsState extends State<CourseSettings> {
                 return Row(
                   children: getWeeks().skip(skip).take(take).map((week) {
                     return Expanded(
-                      child: SwipeDetector(
-                        swipeConfiguration: SwipeConfiguration(
-                          verticalSwipeMinVelocity: 1.0,
-                          verticalSwipeMinDisplacement: 1.0,
-                          verticalSwipeMaxWidthThreshold: 300.0,
-                          horizontalSwipeMaxHeightThreshold: 200.0,
-                          horizontalSwipeMinDisplacement: 1.0,
-                          horizontalSwipeMinVelocity: 1.0,
-                        ),
-                        onSwipeUp: () => _swipeAction(week),
-                        onSwipeRight: () => _swipeAction(week),
-                        onSwipeDown: () => _swipeAction(week),
-                        onSwipeLeft: () => _swipeAction(week),
-                        child: Column(
-                          children: <Widget>[
-                            Text('$week'),
-                            Checkbox(
-                              value: this.weeks.contains(week),
-                              onChanged: (checked) {
-                                setState(() {
-                                  if (checked) {
-                                    if (!this.weeks.contains(week))
-                                      this.weeks.add(week);
-                                  } else {
-                                    this.weeks.removeWhere((v) => v == week);
-                                  }
-                                  this.weeks.sort((a, b) => a - b);
-                                });
-                              },
-                            ),
-                          ],
-                        ),
+                      child: Column(
+                        children: <Widget>[
+                          Text('$week'),
+                          Checkbox(
+                            value: this.weeks.contains(week),
+                            onChanged: (checked) {
+                              setState(() {
+                                if (checked) {
+                                  if (!this.weeks.contains(week))
+                                    this.weeks.add(week);
+                                } else {
+                                  this.weeks.removeWhere((v) => v == week);
+                                }
+                                this.weeks.sort((a, b) => a - b);
+                              });
+                            },
+                          ),
+                        ],
                       ),
                     );
                   }).toList(),

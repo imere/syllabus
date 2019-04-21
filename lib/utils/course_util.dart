@@ -51,7 +51,7 @@ List getFilledCourses({
 
   courses.forEach((course) {
     if (course.start > (prevStart + prevStep)) {
-      // Fill with empty block if there is space between two courses
+      /// Fill with empty block if there is space between two courses
       ret.add(EmptyModel(
         minHeight: minHeight,
         weekday: weekday,
@@ -68,7 +68,7 @@ List getFilledCourses({
     ret.add(course);
   });
 
-  // Fill with empty block if there is space at the end
+  /// Fill with empty block if there is space at the end
   if (prevStart + prevStep - 1 < getRowCount()) {
     ret.add(EmptyModel(
       minHeight: minHeight,
@@ -96,7 +96,7 @@ List _handleValidOverlayCourses(List courses) {
   Map<String, List> map = Map();
 
   courses.forEach((course) {
-    // Map all exist keys
+    /// Map all exist keys
     String key = '${course.start}-${course.step}';
     if (map[key] == null) map[key] = [];
 
@@ -104,9 +104,9 @@ List _handleValidOverlayCourses(List courses) {
   });
 
   final blocks = List.generate(getRowCount(), (idx) => idx + 1);
-  // Traverse all rows
+  /// Traverse all rows
   blocks.forEach((start) {
-    // Traverse all steps
+    /// Traverse all steps
     blocks.forEach((step) {
       if (map['$start-$step'] == null) return;
 

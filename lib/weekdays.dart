@@ -1,8 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:schedule/utils/util.dart' show getWeekdays;
 
-var weekdays = getWeekdays();
-
 class Weeks extends StatefulWidget {
   Weeks({Key key}) : super(key: key);
 
@@ -28,7 +26,7 @@ class _WeeksState extends State<Weeks> {
           child: _buildMonthColumn(width: _itemWidth),
         ),
       ]
-        ..addAll(weekdays.map((week) {
+        ..addAll(getWeekdays().map((week) {
           return Expanded(
             flex: 7,
             child: _buildWeekColumn(week: week, width: _itemWidth),

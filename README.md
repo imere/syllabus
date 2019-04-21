@@ -1,4 +1,4 @@
-# schedule
+# Syllabus
 
 课程表
 

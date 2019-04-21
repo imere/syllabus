@@ -44,7 +44,7 @@ class _SettingsState extends State<Settings> {
       if (checkResourceValid()) {
         prefFs.setString(PREFS_SELECTED_VOICE, key);
       } else {
-        return Toast.show('资源不可用', context);
+        return Toast.show('资源不可用', context, gravity: Toast.CENTER);
       }
     });
   }

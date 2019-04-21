@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:schedule/courses.dart';
 import 'package:schedule/times.dart';
-import 'package:schedule/weekdays.dart' show weekdays;
+import 'package:schedule/utils/util.dart' show getWeekdays;
 
 class Content extends StatefulWidget {
   Content({Key key}) : super(key: key);
@@ -20,7 +20,9 @@ class _ContentState extends State<Content> {
         MediaQuery
             .of(context)
             .size
-            .height * 1.5; // scale is free to change
+            .height * 1.5; /// scale is free to change
+
+    var weekdays = getWeekdays();
 
     return SingleChildScrollView(
       child: Row(
