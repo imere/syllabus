@@ -11,7 +11,7 @@ class Content extends StatefulWidget {
 }
 
 class _ContentState extends State<Content> {
-  /// max height of [Content]
+  /// Max height of [Content]
   double _contentHeight;
 
   @override

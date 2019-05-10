@@ -98,25 +98,27 @@ class _HomePageState extends State<HomePage> {
 
   void _changeWeek() {
     showModalBottomSheet(
-        context: context,
-        builder: (ctx) {
-          return SizedBox(
-              height: 200,
-              child: CupertinoPicker(
-                itemExtent: 40,
-                looping: true,
-                onSelectedItemChanged: (idx) {
-                  _setCurWeek(idx + 1);
-                },
-                children: getWeeks()
-                    .map((week) =>
-                    Text(
+      context: context,
+      builder: (ctx) {
+        return SizedBox(
+          height: 200,
+          child: CupertinoPicker(
+            itemExtent: 40,
+            looping: true,
+            onSelectedItemChanged: (idx) {
+              _setCurWeek(idx + 1);
+            },
+            children: getWeeks()
+                .map((week) =>
+                Text(
                       '$week',
                       style: TextStyle(fontSize: 30),
                     ))
-                    .toList(),
-              ));
-        });
+                .toList(),
+          ),
+        );
+      },
+    );
   }
 
   @override

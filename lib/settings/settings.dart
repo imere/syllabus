@@ -1,16 +1,14 @@
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:schedule/services/service.dart'
-    show updateState$, prefFs, voicesFs, selectedVoiceFs, selectedColorFs;
+    show updateState$, prefFs, selectedVoiceFs, selectedColorFs;
 import 'package:schedule/utils/constants.dart'
     show
         PREFS_SELECTED_VOICE,
-        DEFAULT_VOICE,
-        CUSTOM_VOICE,
         PREFS_CUSTOM_VOICE_PATH,
         MD_COLORS,
         PREFS_SELECTED_COLOR;
-import 'package:schedule/utils/util.dart' show checkResourceValid;
+import 'package:schedule/utils/util.dart' show checkResourceValid, voiceVMap;
 import 'package:toast/toast.dart';
 
 class Settings extends StatefulWidget {
@@ -23,15 +21,6 @@ class Settings extends StatefulWidget {
 }
 
 class _SettingsState extends State<Settings> {
-  Map<String, String> voiceVMap = {
-    DEFAULT_VOICE: '默认',
-    '0': '磁性男声',
-    '1': '成熟女声',
-    '2': '稚嫩童声',
-    '3': '骚气少年',
-    CUSTOM_VOICE: '自定义',
-  };
-
   String _groupVoiceKey;
   String _groupColor;
 
@@ -86,7 +75,9 @@ class _SettingsState extends State<Settings> {
                 itemBuilder: (ctx0) {
                   return voiceVMap.keys
                       .map((k) => PopupMenuItem(
-                          value: k, child: Text('${voiceVMap[k]}')))
+                    value: k,
+                    child: Text('${voiceVMap[k]}'),
+                  ))
                       .toList();
                 },
               ),

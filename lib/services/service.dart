@@ -23,12 +23,11 @@ final List<CourseModel> coursesFs = [];
 
 /// Builtin voices
 final Map<String, String> voicesFs = {
+  DEFAULT_VOICE: 'voice/RSP.mp3',
   '0': '',
   '1': '',
   '2': '',
   '3': '',
-  '4': '',
-  DEFAULT_VOICE: 'voice/RSP.mp3',
   CUSTOM_VOICE: '',
 };
 String selectedVoiceFs = DEFAULT_VOICE;

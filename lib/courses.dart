@@ -83,13 +83,11 @@ class _CourseColumnState extends State<CourseColumn> {
             step: item.step,
             minHeight: item.minHeight,
           );
-        } else if (item.cast<CourseModel>() is List<CourseModel>) {
+        } else {
           return CourseItem(
             courseInfoList: item.cast<CourseModel>(),
             minHeight: widget.minItemHeight,
           );
-        } else {
-          throw Exception('`item` type not supported ');
         }
       }).toList(),
     );

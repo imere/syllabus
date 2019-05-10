@@ -1,5 +1,6 @@
 import 'package:schedule/course.model.dart';
 import 'package:schedule/services/service.dart' show voicesFs, selectedVoiceFs;
+import 'package:schedule/utils/constants.dart' show DEFAULT_VOICE, CUSTOM_VOICE;
 
 int getRowCount() {
   /// Even number
@@ -17,6 +18,12 @@ List<String> getWeekdays() {
     '周日',
   ];
 }
+
+/// Voice options shown
+Map<String, String> voiceVMap = {
+  DEFAULT_VOICE: '默认',
+  CUSTOM_VOICE: '自定义',
+};
 
 List<int> getWeeks() {
   return List.generate(30, (idx) => idx + 1);
