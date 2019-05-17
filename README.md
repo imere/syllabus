@@ -2,4 +2,12 @@
 
 课程表
 
-## Getting Started
+## Snapshot
+
+![main](./misc/main.png)
+
+![create](./misc/create.png)
+
+![modify](./misc/modify.png)
+
+![settings](./misc/settings.png)
