@@ -16,11 +16,11 @@ class _ContentState extends State<Content> {
 
   @override
   Widget build(BuildContext context) {
-    _contentHeight =
-        MediaQuery
-            .of(context)
-            .size
-            .height * 1.5; /// scale is free to change
+    /// Scale is free to change
+    _contentHeight = MediaQuery
+        .of(context)
+        .size
+        .height * 1.5;
 
     var weekdays = getWeekdays();
 

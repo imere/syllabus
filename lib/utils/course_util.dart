@@ -84,7 +84,7 @@ List getFilledCourses({
 /// Process `courses: List<CourseModel|EmptyModel>`,
 /// then return a new list of type `List<CourseModel|EmptyModel|List<CourseModel>>`.
 List _handleValidOverlayCourses(List courses) {
-  // TODO(improve algorithm)
+  // TODO: improve algorithm
   if (courses.length == 0) return [];
 
   courses.sort((a, b) => a.start - b.start);
@@ -104,6 +104,7 @@ List _handleValidOverlayCourses(List courses) {
   });
 
   final blocks = List.generate(getRowCount(), (idx) => idx + 1);
+
   /// Traverse all rows
   blocks.forEach((start) {
     /// Traverse all steps

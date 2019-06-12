@@ -40,6 +40,7 @@ class _CourseItemState extends State<CourseItem> {
         child: Stack(
           alignment: AlignmentDirectional.bottomEnd,
           children: <Widget>[]..addAll(
+
             /// Reverse to make the first at top
               courses.map((courseInfo) {
               return CourseItemChild(
