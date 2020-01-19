@@ -124,7 +124,7 @@ List _handleValidOverlayCourses(List courses) {
   });
 
 //  {
-//    // Debug
+//    /// Debug
 //    for (var item in ret) {
 //      if (item is CourseModel) {
 //        /// In fact this is not reachable, because [CourseModel] are

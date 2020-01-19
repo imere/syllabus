@@ -1,4 +1,4 @@
-\documentclass{article}
+\documentclass[12pt]{article}
 
 \usepackage{ulem,xcolor,fixltx2e}
 \usepackage[a4paper]{geometry}
@@ -52,15 +52,29 @@
 
 \begin{document}
 
-\title{ \bf 课程表助手 }
-\author{}
-\date{2019}
-\maketitle
+\begin{titlepage}
 
+  \title{ \fontsize{45}{17} 课程表助手报告 }
+  \date{}
+  \maketitle
+
+  \vskip 0.5\linewidth
+% \centering
+  \begin{quotation}
+
+    \Large \bf
+    \par\setlength\parindent{8em}
+    \quad
+
+    XXX：\quad XXX \quad
+
+  \end{quotation}
+\end{titlepage}
+  
 \tableofcontents
-
+  
 \pagebreak
-
+  
 \section{项目简介}
 
 由于高职院校普遍存在教室资源和教师数量不足的问题，导致教师的课程安排比较杂乱，没有规
@@ -121,7 +135,7 @@
 
       到设置时间出现提醒界面（时间、地点和课程名称等）并响铃
 
-    \subsubsection{*铃声设置}
+    \subsubsection{铃声设置}
 
       进入设置界面可设置提醒铃声
 
@@ -129,7 +143,7 @@
 
     点击主界面上方周数后，可设置当前所在周数
 
-  \subsection{*主题设置}
+  \subsection{主题设置}
 
     进入设置界面可设置界面主题
 
@@ -196,7 +210,7 @@
 
         \begin{lstlisting}[frame=shadowbox]
           ...
-          // 返回是否相交且未重叠
+          // 返回课程是否相交且未重叠
           return list.any((course) {
             // 检查是否相交
             if ((start + step > course.start) &&
@@ -243,7 +257,8 @@
                   start: prevStart + prevStep,
                   step: course.start - (prevStart + prevStep),
                 ));
-                prevStart = prevStart + prevStep - (prevStart + prevStep);
+                prevStart = prevStart + prevStep -
+                    (prevStart + prevStep);
                 prevStep = course.start + course.step;
               } else {
                 prevStart = course.start;
@@ -263,6 +278,43 @@
             return ret;
           }
         \end{lstlisting}
+
+        最终返回多个类型的数据给布局处理
+
+        \begin{lstlisting}[frame=shadowbox]
+          // 形参类型为上方函数返回的List<CourseModel|EmptyModel>
+          // 返回类型为List<EmptyModel|List<CourseModel>>
+          List _handleValidOverlayCourses(List courses) {
+            ...
+            // 最终返回的表
+            List ret = [];
+            Map<String, List> map = Map();
+            courses.forEach((course) {
+              // 依据已有的行列提前创建映射
+              String key = '${course.start}-${course.step}';
+              if (map[key] == null) map[key] = [];
+              map[key].add(course);
+            });
+            ...
+            // 两层遍历所有行列
+            blocks.forEach((start) {
+              blocks.forEach((step) {
+                if (map['$start-$step'] == null) return;
+                // 判断是否为类型List<EmptyModel> 的表
+                if (map['$start-$step'].first is EmptyModel) {
+                  // 将列表展开到ret 中, 形成EmptyModel
+                  map['$start-$step'].forEach((em) {
+                    ret.add(em);
+                  });
+                  return;
+                }
+                // 形成List<CourseModel>
+                ret.add(map['$start-$step']);
+              });
+            });
+          }
+        \end{lstlisting}
+
     \end{enumerate}
 
   \subsection{未解决的问题}
@@ -299,6 +351,10 @@
 
         \textbf{可能方案分析：}使用 \textit{path\_provider} 获取路径，\textit{dart:io} 读取文件。
     \end{enumerate}
+
+\section*{源码地址}
+
+  \url{https://github.com/imere/syllabus/tree/master/lib}
 
 \begin{thebibliography}{99}
   \bibitem{ref:overflow} overflow: \url{https://stackoverflow.com/questions/50250789/expanded-widgets-must-be-placed-inside-flex-widgets}
